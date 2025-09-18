@@ -1,0 +1,126 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+
+body {
+    background: linear-gradient(rgba(80, 0, 120, 0.7), rgba(80, 0, 120, 0.7)),
+                url('images/UPV.webp') center center/cover no-repeat fixed;
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh;
+    margin: 0;
+    padding: 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+/* Encabezados y títulos */
+#titulo {
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 0.5rem;
+    border-bottom: 2px solid #fff;
+    padding-bottom: 0.5rem;
+    width: fit-content;
+}
+
+#frase {
+    font-size: 1.2rem;
+    font-style: italic;
+    text-align: center;
+    margin-top: 0;
+    color: #f3e5f5;
+}
+
+h3, h4 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 2rem;
+    margin-bottom: 0.8rem;
+    color: #ffcc00; 
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+p {
+    text-align: center;
+    font-size: 1.1rem;
+    margin-top: 0.5rem;
+}
+
+/* Lista de guisos */
+ul {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+li {
+    font-size: 1.2rem;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.7rem 1.5rem;
+    border-radius: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    transition: transform 0.3s ease-in-out;
+}
+
+li:hover {
+    transform: scale(1.05);
+    background: linear-gradient(90deg, #360953, #661992);
+}
+
+/* Estilos para las imagenes */
+img {
+    border-radius: 1rem;
+    border: 3px solid #661992;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    max-width: 100%;
+    height: auto;
+    margin-top: 0.5rem;
+}
+
+img:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+/* para telefono*/
+@media (max-width: 768px) {
+    #titulo {
+        font-size: 2rem;
+    }
+
+    #frase {
+        font-size: 1rem;
+    }
+
+    h3, h4 {
+        font-size: 1.5rem;
+    }
+
+    ul {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    li {
+        padding: 0.5rem 1rem;
+        font-size: 1.1rem;
+    }
+
+    img {
+        width: 100%;
+        max-width: 300px;
+    }
+}

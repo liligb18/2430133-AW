@@ -1,0 +1,83 @@
+body{
+    background-color: purple;
+    color : white;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  gap: 0.5rem; /* Menor separación entre elementos */
+}
+
+/* Estilos para los botones llamativos */
+
+.contacto-card {
+  background: rgba(255,255,255,0.08);
+  border: 2px solid #661992;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  padding: 1.2rem 4rem;
+  min-width: 400px;
+  max-width: 900px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.admins-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: stretch;
+  gap: 1.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.admin-card {
+  background: rgba(255,255,255,0.08);
+  border: 2px solid #661992;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  padding: 1.2rem 2rem;
+  min-width: 220px;
+  max-width: 270px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.admin-logo {
+  width: 110px;
+  height: auto;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+#admins{
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+#frase{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: auto;
+  margin: 0.2rem 0;
+  text-align: center;
+  font-size: 3rem;
+}
+
+#logo {
+  width: 150px;
+  height: auto;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}

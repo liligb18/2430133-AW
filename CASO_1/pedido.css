@@ -1,0 +1,14 @@
+body{
+    background-color: purple;
+}
+
+.pedido-table { width: 100%; max-width: 800px; margin: 2rem auto; border-collapse: collapse; background: rgba(255,255,255,0.07); border-radius: 1rem; overflow: hidden; }
+.pedido-table th, .pedido-table td { padding: 0.7rem 1rem; border-bottom: 1px solid #ccc; text-align: left; }
+.pedido-table th { background: #661992; color: #fff; }
+.pedido-table tr:last-child td { border-bottom: none; }
+.pedido-form { max-width: 800px; margin: 2rem auto; background: rgba(40,0,60,0.12); padding: 2rem; border-radius: 1.2rem; }
+.pedido-form label { font-weight: 600; margin-top: 1rem; display: block; }
+.pedido-form input, .pedido-form select { width: 100%; padding: 0.5rem; margin-top: 0.3rem; border-radius: 0.5rem; border: 1px solid #ccc; margin-bottom: 1rem; }
+.pedido-form button { background: #661992; color: #fff; font-size: 1.2rem; border: none; border-radius: 1rem; padding: 0.7rem 2.5rem; cursor: pointer; margin-top: 1rem; }
+.pedido-form button:hover { background: #a259c6; }
+.pedido-exito { color: #00e676; font-weight: bold; text-align: center; margin-top: 1.5rem; }

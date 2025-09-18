@@ -1,0 +1,49 @@
+/* Contenedor central para centrar botones y logo */
+.central-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+body {
+  background:
+    linear-gradient(rgba(80,0,120,0.7), rgba(80,0,120,0.7)),
+    url('images/UPV.webp') center center/cover no-repeat;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  margin: 0;
+  gap: 0.5rem;
+  padding-top: 3.5rem;
+}
+
+/* Estilos para los botones llamativos */
+button#boton {
+  font-size: 1.5rem;
+  padding: 0.5rem 1.5rem;
+  margin: 0.3rem;
+  border: none;
+  border-radius: 1.2rem;
+  background: linear-gradient(90deg, #360953, #661992);
+  color: white;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+}
+
+#frase{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: auto;
+  margin: 0.2rem 0 2.5rem 0;
+  text-align: center;
+  font-size: 3rem;
+}
+
+#logo {
+  width: 300px;
+  height: auto;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  border: 2px solid #fff;
+}

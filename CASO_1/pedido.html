@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedido Cafetería UPV</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="menu.css">
+    <link rel="stylesheet" href="tabla.css">
+</head>
+<body>
+    <h1 id="titulo">Pedido Cafetería UPV</h1>
+    <form class="pedido-form" id="pedidoForm">
+      <label for="nombre">Nombre del cliente:</label>
+      <input type="text" id="nombre" name="nombre">
+
+      <label for="alimento">Alimento:</label>
+      <select id="alimento" name="alimento">
+        <option value="">Selecciona un alimento</option>
+        <option>Gorditas (4)</option>
+        <option>Flautas (4)</option>
+        <option>Tostadas (4)</option>
+        <option>Tacos de bistec (4)</option>
+        <option>Tacos de trompo (4)</option>
+        <option>Quesadilla</option>
+        <option>Ensalada de pollo</option>
+        <option>BurriPizzas</option>
+        <option>Burritos de frijoles</option>
+        <option>Ensalada de pollo saludable</option>
+        <option>Wrap integral de atún</option>
+        <option>Sandwich de pavo</option>
+        <option>Fruta fresca</option>
+        <option>Yogur con granola</option>
+        <option>Barra energética</option>
+      </select>
+
+      <label for="bebida">Bebida:</label>
+      <select id="bebida" name="bebida">
+        <option value="">Sin bebida</option>
+        <option>Agua natural</option>
+        <option>Agua de sabor</option>
+        <option>Refresco</option>
+        <option>Café</option>
+        <option>Jugo</option>
+      </select>
+
+      <label for="hora">Hora de recogida:</label>
+      <input type="time" id="hora" name="hora">
+
+      <label for="pago">Método de pago:</label>
+      <select id="pago" name="pago">
+        <option value="">Selecciona método de pago</option>
+        <option>Efectivo</option>
+        <option>Tarjeta</option>
+      </select>
+
+      <button type="submit">Guardar pedido</button>
+    </form>
+</body>
+</html>
