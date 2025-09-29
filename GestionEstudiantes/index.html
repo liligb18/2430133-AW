@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registro de Alumnos</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- CSS propio -->
+  <link rel="stylesheet" href="dinseño.css">
+</head>
+<body>
+  <div class="container mt-4">
+    <h2 class="text-center mb-4">Registro de Alumnos</h2>
+
+    <!-- Formulario -->
+    <form id="alumnoForm" class="card p-3 shadow">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label" for="nombre">Nombre del alumno</label>
+          <input type="text" id="nombre" class="form-control" required placeholder="Escribe el nombre completo">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="matricula">Matrícula</label>
+          <input type="text" id="matricula" class="form-control" >
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="carrera">Carrera</label>
+          <select id="carrera" class="form-select" required>
+            <option value="">Seleccione una carrera...</option>
+            <option>Ingeniería en Tecnologías de la Información e Innovación Digital</option>
+            <option>Ingeniería en Energía</option>
+            <option>Ingeniería en Mecatrónica</option>
+            <option>Ingeniería en Tecnologías Automotrices</option>
+            <option>Ingeniería en Tecnologías de Manufactura</option>
+            <option>Licenciatura en Administración y Gestión Empresarial</option>
+            <option>Licenciatura en Comercio Internacional y Aduanas</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="telefono">Teléfono</label>
+          <input type="tel" id="telefono" class="form-control" >
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="gmail">Gmail</label>
+          <input type="email" id="gmail" class="form-control" required placeholder=>
+        </div>
+      </div>
+
+      <div class="mt-3 text-center">
+        <button type="reset" class="btn btn-secondary me-2">Limpiar</button>
+        <button type="submit" class="btn btn-success">Guardar</button>
+      </div>
+    </form>
+
+    <!-- Buscador -->
+    <div class="mt-4">
+      <label class="form-label" for="buscar">Buscar alumno por matrícula</label>
+      <input type="text" id="buscar" class="form-control" placeholder="Escribe la matrícula a buscar...">
+    </div>
+
+    <!-- Tabla de registros -->
+    <div class="mt-3">
+      <table class="table table-bordered table-striped shadow">
+        <thead class="table-dark">
+          <tr>
+            <th>Nombre</th>
+            <th>Matrícula</th>
+            <th>Carrera</th>
+            <th>Teléfono</th>
+            <th>Gmail</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tablaAlumnos">
+          <!-- Aquí van los registros -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- JS propio -->
+  <script src="script.js"></script>
+</body>
+</html>

@@ -58,7 +58,7 @@ p {
     box-shadow: 0 1px 4px rgba(150, 150, 100, 0.1);
 }
 
-/* ---- barra de navegación con botones ---- */
+/*barra de navegación con botones */
 div {
     display: flex;
     justify-content: center;
@@ -73,7 +73,7 @@ div {
 }
 
 button {
-    background: #95d5b2;
+  background: #95d5b2;
     color: #1b4332;
     border: none;
     padding: 10px 15px;
@@ -84,8 +84,4 @@ button {
     font-weight: bold;
 }
 
-button:hover {
-    background: #d4a017;
-    color: white;
-    transform: scale(1.05);
-}
+
