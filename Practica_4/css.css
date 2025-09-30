@@ -1,0 +1,105 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+#app {
+    width: 90%;
+    max-width: 1000px;
+    background: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* --- VISTAS GENERALES --- */
+.view {
+    padding: 20px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* --- AUTENTICACIÓN (LOGIN/REGISTRO) --- */
+#auth-view {
+    text-align: center;
+}
+
+.form-container {
+    padding: 20px;
+    margin-top: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+input, select, button {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+button {
+    background-color: #0056b3; /* Azul UPV */
+    color: white;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #004494;
+}
+
+/* --- APLICACIÓN PRINCIPAL --- */
+header {
+    background-color: #1a73e8; /* Estilo Classroom */
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#main-nav button {
+    background: none;
+    color: white;
+    padding: 8px 15px;
+    margin: 0 5px;
+    border-bottom: 2px solid transparent;
+}
+
+#main-nav button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+#content-area {
+    padding: 20px;
+    min-height: 500px;
+}
+
+/* Estilo para las tablas de gestión */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.data-table th, .data-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.data-table th {
+    background-color: #f2f2f2;
+}

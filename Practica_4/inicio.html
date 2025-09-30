@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema - UPV</title>
+    <link rel="stylesheet" href="css.css"> </head>
+<body>
+
+    <div id="app">
+
+        <div id="auth-view" class="view">
+            <h2>Bienvenid@</h2>
+            <button id="show-login-btn">Iniciar Sesión</button>
+            <button id="show-register-btn">Registrarse</button>
+
+            <div id="login-form" class="form-container">
+                <h3>Iniciar Sesión</h3>
+                <input type="text" id="login-username" placeholder="Usuario">
+                <input type="password" id="login-password" placeholder="Contraseña">
+                <button onclick="handleLogin()">Entrar</button>
+            </div>
+
+            <div id="register-form" class="form-container hidden">
+                <h3>Registro de Nuevo Usuario</h3>
+                
+                <label for="register-role">Selecciona tu Rol</label>
+                <select id="register-role">
+                    <option value="">Selecciona tu Rol</option>
+                    <option value="maestro">Maestro</option>
+                    <option value="alumno">Alumno</option>
+                </select>
+
+                <div id="role-fields">
+                    </div>
+                
+                <input type="text" id="register-new-username" placeholder="Nombre de Usuario">
+                <input type="password" id="register-new-password" placeholder="Contraseña">
+                <button onclick="handleRegister()">Crear Cuenta</button>
+                
+            </div> </div> <div id="main-app-view" class="view hidden">
+            <header>
+                <h1>UPVROOM</h1>
+                <nav id="main-nav">
+                    </nav>
+                <button onclick="logout()">Cerrar Sesión</button>
+            </header>
+
+            <main id="content-area">
+                </main>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
