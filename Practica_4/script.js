@@ -1,4 +1,4 @@
-// --- Funciones de Utilidad para cambiar de vista ---
+// Funciones de Utilidad para cambiar de vista
 function showLogin() {
     document.getElementById('login-view').style.display = 'block';
     document.getElementById('register-view').style.display = 'none';
@@ -27,7 +27,7 @@ function clearMessages() {
 }
 
 
-// --- Función de Registro (Guarda en LocalStorage) ---
+// Función de Registro (Guarda en LocalStorage)
 function register() {
     clearMessages();
     const email = document.getElementById('registerEmail').value;
@@ -48,16 +48,11 @@ function register() {
     messageElement.textContent = '¡Registro exitoso! Ahora puedes iniciar sesión.';
     messageElement.classList.remove('error');
     messageElement.classList.add('success');
-    messageElement.style.display = 'block';
-    
-    // Opcional: limpiar campos y cambiar a la vista de login después de 2 segundos
-    document.getElementById('registerEmail').value = '';
-    document.getElementById('registerPassword').value = '';
-    setTimeout(showLogin, 2000); 
+    messageElement.style.display = 'block'; 
 }
 
 
-// --- Función de Login (Verifica con LocalStorage) ---
+// Función de Login (Verifica con LocalStorage)
 function login() {
     clearMessages();
     const email = document.getElementById('loginEmail').value;
