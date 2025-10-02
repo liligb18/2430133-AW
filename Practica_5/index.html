@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        
+        <div id="login-view">
+            <h2>Iniciar Sesión</h2>
+            <input type="email" id="loginEmail" placeholder="Correo Electrónico" required>
+            <input type="password" id="loginPassword" placeholder="Contraseña" required>
+            <button onclick="login()">Iniciar Sesión</button>
+            <span class="switch-link" onclick="showRegister()"> Regístrate.</span>
+            <div id="loginMessage" class="message error"></div>
+        </div>
+
+        <div id="register-view" style="display:none;">
+            <h2>Registrarse</h2>
+            <input type="email" id="registerEmail" placeholder="Correo Electrónico" required>
+            <input type="password" id="registerPassword" placeholder="Contraseña" required>
+            <button onclick="register()">Registrarme</button>
+            <span class="switch-link" onclick="showLogin()">Inicia sesión.</span>
+            <div id="registerMessage" class="message error"></div>
+        </div>
+
+        <div id="welcome-view" style="display:none;">
+            
+            <div class="header-area">
+                <h2 id="welcomeMessage" class="welcome-header"></h2>
+                <button onclick="logout()" class="logout-btn">Cerrar Sesión</button>
+            </div>
+            
+            <hr>
+            
+            <div class="nav-menu">
+                <button onclick="showTaskView('list')" id="btnTaskList">Tareas Asignadas</button>
+                <button onclick="showTaskView('create')" id="btnCreateTask">Crear Nueva Tarea</button>
+            </div>
+
+            <hr>
+            
+            <div id="create-task-view" style="display:none;">
+                <h3>Asignar Nueva Tarea</h3>
+                <input type="text" id="taskTitle" placeholder="Título de la Tarea" required>
+                <textarea id="taskDetails" placeholder="Especificaciones de la Tarea"></textarea>
+                
+                <label for="taskDueDate">Fecha de Vencimiento:</label>
+                <input type="date" id="taskDueDate" required>
+                
+                <button onclick="addTask()" id="saveTaskBtn" class="add-task-btn">Agregar Tarea</button>
+            </div>
+
+            <div id="list-task-view">
+                <h3>Tareas Asignadas</h3>
+                <div id="taskList">
+                    </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>

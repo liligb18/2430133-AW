@@ -48,7 +48,11 @@ function register() {
     messageElement.textContent = '¡Registro exitoso! Ahora puedes iniciar sesión.';
     messageElement.classList.remove('error');
     messageElement.classList.add('success');
+<<<<<<< HEAD
     messageElement.style.display = 'block'; 
+=======
+    messageElement.style.display = 'block';
+>>>>>>> 90047dc (Modificación en practica 4 y publicacion de preactica 5)
 }
 
 
@@ -68,7 +72,7 @@ function login() {
         return;
     }
 
-    if (email === storedUser.email && password === storedUser.password) {
+    if (email === storedUser.email && password===storedUser.password) {
         // Inicio de sesión exitoso
         showWelcome(email);
     } else {
@@ -79,7 +83,7 @@ function login() {
 }
 
 
-// --- Función de Cerrar Sesión ---
+//Función de Cerrar Sesión
 function logout() {
     // Vuelve a la vista de Login
     showLogin();
