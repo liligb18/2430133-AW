@@ -1,4 +1,4 @@
-//VARIABLES GLOBALES DE ESTADO
+// --- VARIABLES GLOBALES DE ESTADO ---
 let loggedInUserEmail = null;
 let currentProjectId = null; // ID del proyecto que estamos viendo
 let taskIdCounter = 0; 
@@ -6,8 +6,14 @@ let projectIdCounter = 0;
 let isEditingProjectId = null;
 let isEditingTaskId = null;
 
+// Variables para Drag & Drop
+let dragSrcElId = null; 
 
-// LÓGICA DE UTILIDAD Y DATOS
+// Referencias a los contenedores Kanban
+let statusContainers = {};
+
+
+// --- LÓGICA DE UTILIDAD Y DATOS ---
 
 function getProjects() {
     const projectsJSON = localStorage.getItem('projects');
@@ -42,7 +48,7 @@ function clearMessages() {
 }
 
 
-// LÓGICA DE AUTENTICACIÓN Y VISTAS PRINCIPALES
+// --- LÓGICA DE AUTENTICACIÓN Y VISTAS PRINCIPALES ---
 
 function showView(viewId) {
     const views = ['login-view', 'register-view', 'welcome-view'];
@@ -109,7 +115,6 @@ function register() {
         return;
     }
 
-    // Guardar nuevo usuario
     users.push({ email: email, password: password });
     saveUsers(users);
     
@@ -144,7 +149,7 @@ function logout() {
     showLogin();
 }
 
-//LÓGICA DE PROYECTOS
+// --- LÓGICA DE PROYECTOS ---
 
 function showDashboardView(viewId) {
     const views = ['list-projects-view', 'create-project-view', 'project-tasks-view'];
@@ -183,27 +188,24 @@ function saveProject() {
     let projects = getProjects();
 
     if (isEditingProjectId) {
-        // Modo Edición
         projects = projects.map(p => {
             if (p.id === isEditingProjectId) {
-                p.name = name;
-                p.status = status;
-                p.startDate = startDate;
-                p.endDate = endDate;
+                p.nombre = name;
+                p.estado = status;
+                p.fecha_inicio = startDate;
+                p.fecha_fin = endDate;
             }
             return p;
         });
 
     } else {
-        // Modo Creación
         projectIdCounter++;
         const newProject = {
             id: projectIdCounter,
-            name: name,
-            status: status,
-            startDate: startDate,
-            endDate: endDate,
-            // El usuario que lo crea es el primer miembro
+            nombre: name,
+            estado: status,
+            fecha_inicio: startDate,
+            fecha_fin: endDate,
             members: [loggedInUserEmail] 
         };
         projects.push(newProject);
@@ -217,13 +219,12 @@ function renderProjects() {
     const listElement = document.getElementById('projectList');
     const projects = getProjects();
     
-    // Filtra solo los proyectos donde el usuario actual es miembro
     const userProjects = projects.filter(p => p.members.includes(loggedInUserEmail));
 
     listElement.innerHTML = '';
 
     if (userProjects.length === 0) {
-        listElement.innerHTML = '<p class="no-tasks">Aún no eres miembro de ningún proyecto. ¡Crea uno!</p>';
+        listElement.innerHTML = '<p class="no-items">Aún no eres miembro de ningún proyecto. ¡Crea uno!</p>';
         return;
     }
 
@@ -233,13 +234,13 @@ function renderProjects() {
     userProjects.forEach(project => {
         const projectDiv = document.createElement('div');
         projectDiv.className = 'project-item';
-        const statusClass = 'status-' + project.status.toLowerCase().replace(/\s/g, '-');
+        const statusClass = 'status-' + project.estado.toLowerCase().replace(/\s/g, '-');
         
         projectDiv.innerHTML = `
             <div class="project-info">
-                <h4>${project.name}</h4>
-                <p>Estado: <span class="status ${statusClass}">${project.status}</span></p>
-                <p>Fechas: ${project.startDate} a ${project.endDate}</p>
+                <h4>${project.nombre}</h4>
+                <p>Estado: <span class="status ${statusClass}">${project.estado}</span></p>
+                <p>Fechas: ${project.fecha_inicio} a ${project.fecha_fin}</p>
             </div>
             <div class="project-actions">
                 <button onclick="goToProjectTasks(${project.id})" class="edit-btn">Ver Tareas</button>
@@ -256,17 +257,15 @@ function editProject(projectId) {
 
     if (projectToEdit) {
         document.getElementById('projectFormTitle').textContent = 'Editar Proyecto';
-        document.getElementById('projectName').value = projectToEdit.name;
-        document.getElementById('projectStatus').value = projectToEdit.status;
-        document.getElementById('projectStartDate').value = projectToEdit.startDate;
-        document.getElementById('projectEndDate').value = projectToEdit.endDate;
+        document.getElementById('projectName').value = projectToEdit.nombre;
+        document.getElementById('projectStatus').value = projectToEdit.estado;
+        document.getElementById('projectStartDate').value = projectToEdit.fecha_inicio;
+        document.getElementById('projectEndDate').value = projectToEdit.fecha_fin;
         document.getElementById('saveProjectBtn').textContent = 'Guardar Cambios';
         isEditingProjectId = projectId;
         showDashboardView('create-project-view');
     }
 }
-
-//LÓGICA DE NAVEGACIÓN DE TAREAS
 
 function goToProjectTasks(projectId) {
     currentProjectId = projectId;
@@ -274,38 +273,59 @@ function goToProjectTasks(projectId) {
     const project = projects.find(p => p.id === projectId);
     
     if (project) {
-        document.getElementById('currentProjectTitle').textContent = `Tareas para: ${project.name}`;
+        document.getElementById('currentProjectTitle').textContent = `Tareas para: ${project.nombre}`;
         showDashboardView('project-tasks-view');
-        showTaskView('list'); // Mostrar la lista de tareas del proyecto
-    }
-}
-
-function showTaskView(view) {
-    document.getElementById('create-task-view').style.display = 'none';
-    document.getElementById('list-task-view').style.display = 'none';
-    
-    isEditingTaskId = null;
-    document.getElementById('saveTaskBtn').textContent = 'Agregar Tarea';
-    
-    if (view === 'create') {
-        document.getElementById('create-task-view').style.display = 'block';
-        // Limpia el formulario
-        document.getElementById('taskTitle').value = '';
-        document.getElementById('taskDetails').value = '';
-        document.getElementById('taskDueDate').value = '';
-    } else { // 'list'
-        document.getElementById('list-task-view').style.display = 'block';
+        // Inicializar las referencias y renderizar el tablero
+        initKanbanBoard(); 
         renderTasks(); 
     }
 }
 
+// Muestra el formulario de creación/edición de tarea
+function showCreateTaskForm() {
+    isEditingTaskId = null;
+    document.getElementById('create-task-form').style.display = 'block';
+    document.getElementById('taskTitle').value = '';
+    document.getElementById('taskDescription').value = '';
+    document.getElementById('taskPriority').value = 'Media';
+    document.getElementById('taskDueDate').value = '';
+    document.getElementById('taskAssignedTo').value = '';
+    document.getElementById('saveTaskBtn').textContent = 'Guardar Tarea';
+}
 
-// LÓGICA DE TAREAS
+function hideCreateTaskForm() {
+    document.getElementById('create-task-form').style.display = 'none';
+}
+
+
+// --- LÓGICA DE TAREAS Y KANBAN (DRAG & DROP) ---
+
+// Inicializa las referencias a los ULs y los listeners de Drop
+function initKanbanBoard() {
+    statusContainers = {
+        pendiente: document.getElementById('lista-pendiente'),
+        en_proceso: document.getElementById('lista-en_proceso'),
+        hecha: document.getElementById('lista-hecha')
+    };
+    
+    // Aplicar listeners de arrastrar y soltar a los contenedores
+    Object.keys(statusContainers).forEach(status => {
+        const container = statusContainers[status];
+        container.removeEventListener('dragover', dragOver); // Limpieza
+        container.removeEventListener('drop', drop); // Limpieza
+        
+        container.addEventListener('dragover', dragOver);
+        container.addEventListener('drop', drop);
+        container.dataset.status = status;
+    });
+}
 
 function addTask() {
     const title = document.getElementById('taskTitle').value.trim();
-    const details = document.getElementById('taskDetails').value.trim();
+    const description = document.getElementById('taskDescription').value.trim();
+    const priority = document.getElementById('taskPriority').value;
     const dueDate = document.getElementById('taskDueDate').value;
+    const assignedTo = document.getElementById('taskAssignedTo').value.trim();
 
     if (!title || !dueDate) {
         alert("Por favor, ingresa el título y la fecha de vencimiento de la tarea.");
@@ -319,10 +339,12 @@ function addTask() {
         tasks = tasks.map(task => {
             if (task.id === isEditingTaskId) {
                 return { 
-                    ...task, // Mantiene el projectId
-                    title: title, 
-                    details: details, 
-                    dueDate: dueDate 
+                    ...task,
+                    titulo: title,
+                    descripcion: description,
+                    prioridad: priority,
+                    fecha_vencimiento: dueDate,
+                    asignado_a: assignedTo
                 };
             }
             return task;
@@ -333,29 +355,36 @@ function addTask() {
         taskIdCounter++; 
         const newTask = {
             id: taskIdCounter,
-            projectId: currentProjectId, // Liga la tarea al proyecto actual
-            title: title,
-            details: details,
-            dueDate: dueDate
+            proyecto_id: currentProjectId, // ASIGNACIÓN CLAVE
+            titulo: title,
+            descripcion: description,
+            estado: 'pendiente', // Nueva tarea siempre empieza en pendiente
+            prioridad: priority,
+            fecha_vencimiento: dueDate,
+            asignado_a: assignedTo
         };
         tasks.push(newTask);
     }
 
     saveTasks(tasks);
-    showTaskView('list'); 
+    hideCreateTaskForm(); // Ocultar el formulario
+    renderTasks(); // Renderizar el tablero
 }
 
 function renderTasks() {
-    const taskListElement = document.getElementById('taskList');
+    // 1. Limpiar las columnas
+    Object.values(statusContainers).forEach(container => container.innerHTML = '');
+    
     const tasks = getTasks();
-
-    //  muestra tareas del proyecto activo
-    const projectTasks = tasks.filter(t => t.projectId === currentProjectId);
-
-    taskListElement.innerHTML = '';
+    
+    // FILTRADO CLAVE: Solo muestra tareas del proyecto activo
+    const projectTasks = tasks.filter(t => t.proyecto_id === currentProjectId);
 
     if (projectTasks.length === 0) {
-        taskListElement.innerHTML = '<p class="no-tasks">Aún no hay tareas para este proyecto. ¡Crea una!</p>';
+        // Mostrar mensaje solo en la columna pendiente si no hay tareas
+        if(statusContainers.pendiente) {
+            statusContainers.pendiente.innerHTML = '<p class="no-items">Crea la primera tarea.</p>';
+        }
         return;
     }
     
@@ -363,20 +392,29 @@ function renderTasks() {
     taskIdCounter = maxId;
 
     projectTasks.forEach(task => {
-        const taskDiv = document.createElement('div');
-        taskDiv.className = 'task-item';
+        const taskDiv = document.createElement('li');
+        taskDiv.id = `task-${task.id}`;
+        taskDiv.className = `task-item priority-${task.prioridad.toLowerCase()}`;
+        taskDiv.draggable = true;
+        
         taskDiv.innerHTML = `
-            <div class="task-info">
-                <h4>${task.title}</h4>
-                <p><strong>Detalles:</strong> ${task.details || 'No especificado'}</p>
-                <p class="task-due">Vencimiento: ${task.dueDate}</p>
-            </div>
-            <div class="task-actions">
-                <button onclick="editTask(${task.id})" class="edit-btn">Editar</button>
-                <button onclick="deleteTask(${task.id})" class="delete-btn">Eliminar</button>
+            <h5>${task.titulo}</h5>
+            <p class="description">${task.descripcion}</p>
+            <p>Vence: <strong>${task.fecha_vencimiento}</strong></p>
+            <p class="assigned-to">Asignado a: <strong>${task.asignado_a}</strong></p>
+            <div style="text-align: right; margin-top: 10px;">
+                <button onclick="editTask(${task.id})" style="width: auto; padding: 5px 10px; font-size: 0.8em; margin: 0;">Editar</button>
             </div>
         `;
-        taskListElement.appendChild(taskDiv);
+        
+        // 2. Asignar Eventos Drag & Drop a la tarea
+        taskDiv.addEventListener('dragstart', dragStart);
+        taskDiv.addEventListener('dragend', dragEnd);
+
+        // 3. Agregar a la columna correcta
+        if (statusContainers[task.estado]) {
+            statusContainers[task.estado].appendChild(taskDiv);
+        }
     });
 }
 
@@ -385,25 +423,66 @@ function editTask(taskId) {
     const taskToEdit = tasks.find(task => task.id === taskId);
 
     if (taskToEdit) {
-        showTaskView('create'); 
+        showCreateTaskForm(); // Mostrar el formulario
         
-        document.getElementById('taskTitle').value = taskToEdit.title;
-        document.getElementById('taskDetails').value = taskToEdit.details;
-        document.getElementById('taskDueDate').value = taskToEdit.dueDate;
+        document.getElementById('taskTitle').value = taskToEdit.titulo;
+        document.getElementById('taskDescription').value = taskToEdit.descripcion;
+        document.getElementById('taskPriority').value = taskToEdit.prioridad;
+        document.getElementById('taskDueDate').value = taskToEdit.fecha_vencimiento;
+        document.getElementById('taskAssignedTo').value = taskToEdit.asignado_a;
 
         document.getElementById('saveTaskBtn').textContent = 'Guardar Cambios';
         isEditingTaskId = taskId;
     }
 }
 
-function deleteTask(taskId) {
-    if (confirm("¿Estás seguro de que quieres eliminar esta tarea?")) {
-        let tasks = getTasks();
-        // Filtra y guarda solo las tareas que NO coinciden con el ID
-        tasks = tasks.filter(task => task.id !== taskId);
-        saveTasks(tasks);
+// --- LÓGICA DRAG & DROP ---
+
+function dragStart(e) {
+    dragSrcElId = parseInt(this.id.split('-')[1]); 
+    e.dataTransfer.setData('text/plain', dragSrcElId);
+    e.dataTransfer.effectAllowed = 'move';
+    this.classList.add('dragging');
+}
+
+function dragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    // Efecto visual al arrastrar sobre la columna
+    if (e.currentTarget.tagName === 'UL') {
+         e.currentTarget.classList.add('drag-over-target');
+    }
+}
+
+function drop(e) {
+    e.preventDefault();
+    const targetContainer = e.currentTarget; 
+    const newStatus = targetContainer.dataset.status; 
+    
+    // Quitar efecto visual
+    Object.values(statusContainers).forEach(container => container.classList.remove('drag-over-target'));
+    
+    const draggedId = parseInt(e.dataTransfer.getData('text/plain'));
+    
+    let tasks = getTasks();
+    const tareaIndex = tasks.findIndex(t => t.id === draggedId);
+    
+    if (tareaIndex > -1 && tasks[tareaIndex].estado !== newStatus) {
+        // 1. Actualizar el estado del objeto en la lista
+        tasks[tareaIndex].estado = newStatus;
+        
+        // 2. Simular guardar los datos
+        saveTasks(tasks); 
+        
+        // 3. Re-renderizar para mover la tarjeta a la columna correcta
         renderTasks();
     }
+}
+
+function dragEnd(e) {
+    e.target.classList.remove('dragging');
+    // Limpieza de efecto visual si no se soltó correctamente
+    Object.values(statusContainers).forEach(container => container.classList.remove('drag-over-target'));
 }
 
 // INICIO: Chequea la sesión al cargar la página
