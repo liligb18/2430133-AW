@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso al Sistema - Pasteles</title>
+    <link rel="stylesheet" href="login.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Bienvenido(a) </h1>
+
+        <div class="form-container">
+
+            <form id="login-form" class="form active">
+                <h2>Iniciar Sesión</h2>
+                <div class="input-group">
+                    <label for="login-email">Correo Electrónico:</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="input-group">
+                    <label for="login-password">Contraseña:</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="pastel-button primary">Entrar</button>
+                <p>¿No tienes cuenta? <a href="#" id="show-register">Regístrate aquí</a></p>
+            </form>
+
+            <form id="register-form" class="form">
+                <h2>Crear Perfil</h2>
+                <div class="input-group">
+                    <label for="register-email">Correo Electrónico:</label>
+                    <input type="email" id="register-email" required>
+                </div>
+                <div class="input-group">
+                    <label for="register-password">Contraseña:</label>
+                    <input type="password" id="register-password" required>
+                </div>
+                <div class="input-group">
+                    <label for="confirm-password">Confirmar Contraseña:</label>
+                    <input type="password" id="confirm-password" required>
+                </div>
+                <button type="submit" class="pastel-button secondary">Registrarme</button>
+                <p>¿Ya tienes cuenta? <a href="#" id="show-login">Iniciar Sesión</a></p>
+            </form>
+
+        </div>
+    </div>
+
+    <div id="success-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <div class="modal-icon">&#10003;</div> <h3 id="modal-title"></h3>
+            <p id="modal-message"></p>
+            <button id="modal-ok-button" class="pastel-button primary">Continuar</button>
+        </div>
+    </div>
+
+    <script src="login.js"></script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Calificaciones</title>
+    <link rel="stylesheet" href="Calculadora.css"> 
+</head>
+<body>
+    <div class="container">
+        <h1>Calculadora de Calificaciones</h1>
+
+        <div class="input-group">
+            <label for="numMaterias">Número de Materias (N):</label>
+            <input type="number" id="numMaterias" min="1" value="1">
+            <button onclick="generarInputs()">Generar Campos</button>
+        </div>
+
+        <div id="materias-container">
+            </div>
+
+        <button id="calcularBtn" onclick="calcularCalificaciones()" style="display:none;">Calcular Promedios</button>
+        
+        <div id="resultados-container">
+            <h2>Resultados por Materia</h2>
+            </div>
+    </div>
+
+    <script src="Calculadora.js"></script> 
+</body>
+</html>

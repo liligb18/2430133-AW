@@ -1,0 +1,137 @@
+/* Paleta de Colores Pastel, repetimos las variables para consistencia */
+:root {
+    --color-body-bg: #F8F4E3;
+    --color-primary: #B5EAD7; /* Menta Suave */
+    --color-secondary: #FFDDE2; /* Rosa Pálido */
+    --color-text: #707A89;
+    --color-accent: #C7CEEA; /* Lavanda Suave */
+}
+
+/* Estilos Globales y de Tipografía */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Quicksand', sans-serif;
+    background-color: var(--color-body-bg);
+    color: var(--color-text);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 40px 20px;
+}
+
+.menu-container {
+    width: 100%;
+    max-width: 900px;
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Encabezado */
+.welcome-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #E0E0E0;
+}
+
+.welcome-header h1 {
+    font-weight: 700;
+    color: var(--color-accent);
+    font-size: 2.5em;
+    margin-bottom: 8px;
+}
+
+.welcome-header p {
+    font-weight: 500;
+    color: var(--color-text);
+    font-size: 1.1em;
+}
+
+/* Grid del Menú */
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.menu-item {
+    display: block;
+    text-decoration: none;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s, box-shadow 0.3s;
+    text-align: center;
+}
+
+.menu-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.menu-item h3 {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    font-weight: 700;
+    font-size: 1.25em;
+    color: var(--color-text);
+}
+
+.menu-item p {
+    font-size: 0.9em;
+    color: #9AA3AF; /* Gris más claro */
+}
+
+.menu-item .icon {
+    font-size: 3em;
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Colores específicos para cada tarjeta (variaciones pastel) */
+.users { background-color: #f7d9c4; /* Melocotón Suave */ }
+.users .icon { color: #e9945a; }
+
+.projects { background-color: #c7eedd; /* Menta más claro */ }
+.projects .icon { color: #4CAF50; }
+
+.notes { background-color: #d9d4f4; /* Lavanda más claro */ }
+.notes .icon { color: #8A2BE2; }
+
+.profile { background-color: #ffe5e5; /* Rosa muy claro */ }
+.profile .icon { color: #e87b7b; }
+
+
+/* Botón de Cerrar Sesión */
+.logout-button {
+    background-color: #ffb3b3; /* Rojo Pastel Suave */
+    color: white;
+    font-weight: 700;
+    width: 250px;
+    margin: 0 auto;
+    display: block;
+    padding: 12px;
+}
+
+.logout-button:hover {
+    background-color: #ff9999;
+}
+
+/* Media Queries para diseño responsive */
+@media (max-width: 600px) {
+    .menu-container {
+        padding: 20px;
+    }
+    .menu-grid {
+        grid-template-columns: 1fr;
+    }
+}
