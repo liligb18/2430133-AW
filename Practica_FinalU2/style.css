@@ -1,0 +1,551 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Estilos para el cuerpo del documento */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: #f9fafb;
+    color: #1f2937;
+}
+
+/* Contenedor principal con ancho máximo y centrado */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Estilos del Encabezado */
+.header {
+    background: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+/* Contenido del encabezado */
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 0;
+}
+
+/* logo y toggle de menu */
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Botón de alternar menú*/
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* Estilos del logo */
+.logo {
+    font-size: 1.75rem;
+    font-weight: bold;
+    color: #1e3a8a;
+}
+
+/* Navegación principal */
+.main-nav {
+    display: flex;
+    gap: 1.5rem;
+}
+
+/* Enlaces de la navegación */
+.main-nav a {
+    color: #4b5563;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+
+.main-nav a:hover {
+    color: #1e3a8a;
+}
+
+/* botones de carrito y usuario */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Botones de ícono (carrito, usuario) */
+.icon-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    position: relative;
+}
+
+/* Etiqueta de conteo del carrito */
+.cart-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ef4444; 
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 0.75rem;
+    display: none; 
+    align-items: center;
+    justify-content: center;
+}
+
+
+.cart-badge.active {
+    display: flex;
+}
+
+/* Barra de Categorías */
+.categories-bar {
+    border-top: 1px solid #e5e7eb;
+    background: white;
+}
+
+
+.categories-scroll {
+    display: flex;
+    gap: 1.5rem;
+    padding: 0.75rem 0;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+/* Estilos para la barra de scroll */
+.categories-scroll::-webkit-scrollbar {
+    height: 4px;
+}
+
+.categories-scroll::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 2px;
+}
+
+/* Botones de categoría */
+.category-btn {
+    background: none;
+    border: none;
+    color: #4b5563;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    padding: 0.25rem 0;
+}
+
+/* Estilos para el botón activo y al pasar el ratón */
+.category-btn:hover,
+.category-btn.active {
+    color: #1e3a8a;
+    font-weight: 600;
+}
+
+/* Contenido Principal */
+.main-content {
+    padding: 2rem 0;
+}
+
+/* Grid principal: Productos y Carrito lateral */
+.content-grid {
+    display: grid;
+    grid-template-columns: 1fr 400px; 
+    gap: 2rem;
+}
+
+/* Título de la sección de productos */
+.section-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #1e3a8a;
+    margin-bottom: 1.5rem;
+}
+
+/* Grid de Productos */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+    gap: 1.5rem;
+}
+
+/* Tarjeta de producto individual */
+.product-card {
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: box-shadow 0.3s;
+}
+
+/* Efecto hover en la tarjeta de producto */
+.product-card:hover {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Imagen del producto */
+.product-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+/* Información del producto */
+.product-info {
+    padding: 1rem;
+}
+
+.product-name {
+    font-size: 1.125rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.product-description {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+
+.product-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.product-price {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #1f2937;
+}
+
+/* Botón para añadir al carrito */
+.btn-add {
+    background: #1e3a8a;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-add:hover {
+    background: #1e40af;
+}
+
+/* Barra del Carrito  */
+.cart-sidebar {
+    position: sticky; /* Se mantiene fijo al hacer scroll */
+    top: 6rem;
+    height: fit-content;
+}
+
+/* Contenedor del carrito */
+.cart-container {
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+}
+
+.cart-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+
+.delivery-notice {
+    display: flex;
+    gap: 0.5rem;
+    background: #f9fafb;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.icon-location {
+    font-size: 1.25rem;
+}
+
+.delivery-title {
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.delivery-subtitle {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+
+.cart-items {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+}
+
+
+.cart-item {
+    display: flex;
+    gap: 0.75rem;
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.cart-item-image {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 0.25rem;
+}
+
+.cart-item-info {
+    flex: 1;
+}
+
+.cart-item-name {
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+}
+
+.cart-item-price {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Botones de aumentar/disminuir cantidad */
+.btn-quantity {
+    background: #e5e7eb;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+}
+
+.btn-quantity:hover {
+    background: #d1d5db;
+}
+
+.quantity-value {
+    font-weight: 600;
+}
+
+/* Botón de eliminar ítem del carrito */
+.btn-remove {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 1.25rem;
+}
+
+.btn-remove:hover {
+    color: #dc2626;
+}
+
+
+.cart-footer {
+    border-top: 1px solid #e5e7eb;
+    padding-top: 1rem;
+}
+
+/* Estilo para el subtotal */
+.cart-subtotal {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.125rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+/* Estilos comunes para los botones de acción */
+.btn-primary,
+.btn-secondary {
+    width: 100%;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+/* Botón primario (generalmente para ingresar dirección) */
+.btn-primary {
+    background: #fbbf24;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.btn-primary:hover {
+    background: #f59e0b;
+}
+
+/* Botón secundario (generalmente para continuar/checkout) */
+.btn-secondary {
+    background: #e5e7eb;
+    color: #4b5563;
+}
+
+.btn-secondary:hover {
+    background: #d1d5db;
+}
+
+/* Modal de Notificaciones */
+.modal {
+    display: none; /* Oculto por defecto */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo semitransparente */
+    align-items: center;
+    justify-content: center;
+}
+
+/* Muestra el modal */
+.modal.active {
+    display: flex;
+}
+
+/* Contenido interno del modal */
+.modal-content {
+    background: white;
+    border-radius: 0.5rem;
+    max-width: 400px;
+    width: 90%;
+    margin: 1rem;
+    animation: modalSlide 0.3s ease-out; /* Animación de entrada */
+}
+
+/* Animación del modal */
+@keyframes modalSlide {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Estilos de borde para diferentes tipos de notificación */
+.modal-content.success {
+    border-top: 4px solid #10b981;
+}
+
+.modal-content.error {
+    border-top: 4px solid #ef4444;
+}
+
+.modal-content.info {
+    border-top: 4px solid #3b82f6;
+}
+
+/* Cuerpo interno del modal */
+.modal-body {
+    padding: 2rem;
+    text-align: center;
+}
+
+#modalIcon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+#modalTitle {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+#modalMessage {
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+}
+
+/* Botón de aceptar en el modal */
+.btn-accept {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 0.5rem 2rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-accept:hover {
+    background: #2563eb;
+}
+
+/* Estilos Responsivos */
+@media (max-width: 1024px) {
+    /* En pantallas medianas, el carrito se mueve debajo de los productos */
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cart-sidebar {
+        position: relative;
+        top: 0;
+    }
+
+    /* Ocultar el menú de navegación principal y mostrar el botón de toggle */
+    .main-nav {
+        display: none;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+}
+
+@media (max-width: 768px) {
+    /* En pantallas más pequeñas, los productos se muestran en una sola columna */
+    .products-grid {
+        grid-template-columns: 1fr;
+    }
+}
