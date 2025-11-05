@@ -1,7 +1,8 @@
+/* --- Estilos Globales --- */
 :root {
-    --color-primario: #00897b; 
+    --color-primario: #00897b; /* Verde-Azul (Teal) */
     --color-primario-oscuro: #00695c;
-    --color-fondo-app: #f4f9f4; 
+    --color-fondo-app: #f4f9f4; /* Verde pastel muy claro */
     --color-fondo-sidebar: #ffffff;
     --color-fondo-header: #ffffff;
     --color-texto: #333;
@@ -10,6 +11,12 @@
     --color-pastel-azul-claro: #e0f7fa;
     --color-pastel-verde-claro: #e6f7e9;
     --sombra-suave: 0 4px 12px rgba(0, 0, 0, 0.06);
+    --color-pendiente: #fff3e0;
+    --color-pendiente-texto: #ef6c00;
+    --color-pagado: #e6f7e9;
+    --color-pagado-texto: #2e7d32;
+    --color-alergia: #fbe9e7;
+    --color-alergia-texto: #c62828;
 }
 
 body {
@@ -24,42 +31,36 @@ body {
     min-height: 100vh;
 }
 
-/* ---Sidebar --- */
+/* --- Barra Lateral (Sidebar) --- */
 .sidebar {
     width: 260px;
     background-color: var(--color-fondo-sidebar);
     box-shadow: var(--sombra-suave);
     display: flex;
     flex-direction: column;
-    flex-shrink: 0; 
+    flex-shrink: 0;
 }
-
 .sidebar-header {
     padding: 1.5rem;
     text-align: center;
     border-bottom: 1px solid var(--color-borde);
 }
-
 .sidebar-header h3 {
     margin: 0;
     color: var(--color-primario);
 }
-
 .sidebar-header i {
     margin-right: 0.5rem;
 }
-
 .sidebar-menu {
     list-style: none;
     padding: 1rem 0;
     margin: 0;
-    flex-grow: 1; 
+    flex-grow: 1;
 }
-
 .sidebar-menu li {
     margin: 0.25rem 1rem;
 }
-
 .sidebar-menu li a {
     display: block;
     padding: 0.9rem 1.2rem;
@@ -69,58 +70,50 @@ body {
     font-weight: 500;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
-
 .sidebar-menu li a i {
     margin-right: 0.8rem;
-    width: 20px; 
+    width: 20px;
     text-align: center;
 }
-
 .sidebar-menu li a:hover {
     background-color: var(--color-pastel-verde-claro);
     color: var(--color-primario);
 }
-
 .sidebar-menu li.active a {
     background-color: var(--color-primario);
     color: #ffffff;
 }
-
 .sidebar-footer {
     padding: 1.5rem;
     border-top: 1px solid var(--color-borde);
 }
-
 .sidebar-footer a {
     display: block;
     padding: 0.8rem;
     text-align: center;
     text-decoration: none;
-    background-color: #fbe9e7; 
+    background-color: #fbe9e7;
     color: #d9534f;
     border-radius: 8px;
     font-weight: bold;
     transition: background-color 0.3s ease;
 }
-
 .sidebar-footer a:hover {
     background-color: #ffcdd2;
 }
 
 /* --- Contenido Principal --- */
 .main-content {
-    flex-grow: 1; 
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
 }
-
 .main-header {
     background-color: var(--color-fondo-header);
     padding: 1.5rem 2rem;
     border-bottom: 1px solid var(--color-borde);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
 }
-
 .main-header h2 {
     margin: 0;
     font-size: 1.8rem;
@@ -129,13 +122,12 @@ body {
     margin: 0.25rem 0 0;
     color: var(--color-texto-claro);
 }
-
 .content-wrapper {
     padding: 2rem;
     flex-grow: 1;
 }
 
-
+/* --- Componentes --- */
 .card {
     background-color: #ffffff;
     border-radius: 12px;
@@ -143,17 +135,14 @@ body {
     box-shadow: var(--sombra-suave);
     margin-bottom: 1.5rem;
 }
-
 .card-deck {
     display: flex;
     gap: 1.5rem;
 }
-
 .small-card {
-    flex: 1; 
+    flex: 1;
     text-align: center;
 }
-
 .stat-number {
     font-size: 2.5rem;
     font-weight: bold;
@@ -162,7 +151,7 @@ body {
     margin-top: 0.5rem;
 }
 
-/* Botones */
+/* --- Botones --- */
 .btn {
     padding: 0.75rem 1.25rem;
     border: none;
@@ -172,7 +161,6 @@ body {
     transition: all 0.3s ease;
     font-size: 0.95rem;
 }
-
 .btn-primary {
     background-color: var(--color-primario);
     color: white;
@@ -180,7 +168,6 @@ body {
 .btn-primary:hover {
     background-color: var(--color-primario-oscuro);
 }
-
 .btn-secondary {
     background-color: var(--color-borde);
     color: var(--color-texto);
@@ -188,7 +175,6 @@ body {
 .btn-secondary:hover {
     background-color: #ccc;
 }
-
 .btn-danger {
     background-color: #fbe9e7;
     color: #d9534f;
@@ -196,7 +182,6 @@ body {
 .btn-danger:hover {
     background-color: #ffcdd2;
 }
-
 .btn-edit {
     background-color: #e0f2f1;
     color: #00796b;
@@ -207,8 +192,7 @@ body {
     background-color: #b2dfdb;
 }
 
-
-/* Formularios */
+/* --- Formularios --- */
 .form-container {
     display: none; 
     background-color: #ffffff;
@@ -217,33 +201,30 @@ body {
     box-shadow: var(--sombra-suave);
     margin-bottom: 2rem;
 }
-
 .form-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
 }
-
 .form-group {
     display: flex;
     flex-direction: column;
 }
-
-
 .form-group.full-width {
     grid-column: span 2;
 }
-
 .form-group label {
     margin-bottom: 0.5rem;
     font-weight: bold;
     color: var(--color-texto-claro);
 }
-
 .form-group input[type="text"],
 .form-group input[type="email"],
 .form-group input[type="tel"],
 .form-group input[type="date"],
+.form-group input[type="datetime-local"],
+.form-group input[type="number"],
+.form-group input[type="password"],
 .form-group select,
 .form-group textarea {
     width: 100%;
@@ -254,67 +235,163 @@ body {
     font-family: 'Arial', sans-serif;
     font-size: 0.95rem;
 }
-
 .form-group textarea {
     min-height: 100px;
     resize: vertical;
 }
-
 .form-actions {
     grid-column: span 2;
     text-align: right;
     margin-top: 1rem;
 }
-
 .form-actions .btn {
     margin-left: 0.5rem;
 }
 
+/* --- Barras de Búsqueda (NUEVO) --- */
+.search-bar-container {
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    box-shadow: var(--sombra-suave);
+}
+.search-bar-container i {
+    color: var(--color-texto-claro);
+    margin-right: 0.75rem;
+}
+.search-bar-container input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    color: var(--color-texto);
+}
 
-/* Tablas */
+/* --- Tablas --- */
 .table-container {
     width: 100%;
-    overflow-x: auto; 
+    overflow-x: auto;
     background-color: #ffffff;
     border-radius: 12px;
     box-shadow: var(--sombra-suave);
 }
-
 table {
     width: 100%;
     border-collapse: collapse;
 }
-
 table thead {
     background-color: var(--color-pastel-azul-claro);
 }
-
 table th {
     padding: 1rem;
     text-align: left;
     font-weight: bold;
-    color: #006064; 
+    color: #006064;
     border-bottom: 2px solid var(--color-primario);
 }
-
 table tbody tr {
     border-bottom: 1px solid var(--color-borde);
 }
-
 table tbody tr:last-child {
     border-bottom: none;
 }
-
 table tbody tr:hover {
     background-color: #f9f9f9;
 }
-
 table td {
     padding: 1rem;
     color: var(--color-texto-claro);
 }
-
 table .actions-cell {
     display: flex;
     gap: 0.5rem;
+}
+
+/* --- Insignias de Estatus (NUEVO) --- */
+.status {
+    padding: 0.25rem 0.6rem;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 0.8rem;
+    text-transform: capitalize;
+}
+.status-pendiente, .status-programada, .status-confirmada {
+    background-color: var(--color-pendiente);
+    color: var(--color-pendiente-texto);
+}
+.status-pagado, .status-realizada {
+    background-color: var(--color-pagado);
+    color: var(--color-pagado-texto);
+}
+.status-cancelada {
+    background-color: var(--color-alergia);
+    color: var(--color-alergia-texto);
+}
+span.alergias {
+    color: var(--color-alergia-texto);
+    font-weight: bold;
+}
+
+/* --- Página de Consulta (NUEVO) --- */
+.consulta-container {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 2rem;
+}
+.columna-paciente #datos-paciente-fijos p {
+    margin: 0.5rem 0;
+    line-height: 1.5;
+}
+#historial-consultas {
+    max-height: 400px;
+    overflow-y: auto;
+}
+.historial-item {
+    border-bottom: 1px solid var(--color-borde);
+    padding: 0.75rem 0.25rem;
+}
+.historial-item:last-child {
+    border-bottom: none;
+}
+.historial-item strong {
+    color: var(--color-primario);
+    display: block;
+    margin-bottom: 0.25rem;
+}
+.historial-item p {
+    margin: 0.25rem 0;
+    font-size: 0.9rem;
+}
+
+/* Responsividad */
+@media (max-width: 992px) {
+    .consulta-container {
+        grid-template-columns: 1fr;
+    }
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    .form-group.full-width {
+        grid-column: span 1;
+    }
+    .form-actions {
+        grid-column: span 1;
+    }
+}
+@media (max-width: 768px) {
+    .app-container {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+        height: auto;
+        flex-direction: row; /* Pendiente de ajustar menú */
+        display: none; /* Simplificado - en una app real sería un menú hamburguesa */
+    }
+    .card-deck {
+        flex-direction: column;
+    }
 }

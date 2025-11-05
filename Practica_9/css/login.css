@@ -1,6 +1,7 @@
+/* Estilos para la página de login */
 body {
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(135deg, #e0f7fa, #e6f7e9);
+    background: linear-gradient(135deg, #e0f7fa, #e6f7e9); /* Gradiente pastel azul y verde */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -19,13 +20,8 @@ body {
     overflow: hidden; 
 }
 
-/* --- ESTILOS DE FORMULARIO --- */
-#register-form {
-    display: none;
-}
-
 .login-container h2 {
-    color: #00897b; 
+    color: #00897b; /* Un verde azulado (teal) oscuro para contraste */
     margin-bottom: 0.5rem;
 }
 
@@ -74,33 +70,15 @@ button:hover {
     background-color: #00695c;
 }
 
-/* --- ESTILOS DE MENSAJES Y ENLACES --- */
 .error-message {
     color: #d9534f;
     margin-top: 1rem;
     font-size: 0.9rem;
-    display: none; 
-}
-
-.success-message {
-    color: #00897b;
-    margin-top: 1rem;
-    font-size: 0.9rem;
-    display: none; 
+    display: none; /* Oculto por defecto */
 }
 
 .toggle-link {
     margin-top: 1.5rem;
     font-size: 0.9rem;
     color: #666;
-}
-
-.toggle-link a {
-    color: var(--color-primario, #00897b);
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.toggle-link a:hover {
-    text-decoration: underline;
 }
