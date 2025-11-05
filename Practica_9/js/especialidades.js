@@ -1,7 +1,7 @@
-/* === SCRIPT MÓDULO DE ESPECIALIDADES === */
+
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- ¡NUEVO! Bloque de Seguridad por Rol ---
+    
     const rolesPermitidos = ['Admin']; // SOLO ADMIN
     const userRole = localStorage.getItem('userRole');
 
@@ -10,14 +10,12 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'index.html';
         return;
     }
-    // --- Fin del Bloque de Seguridad ---
-
 
     // --- 1. Llave de Local Storage ---
     const ESPECIALIDADES_KEY = 'especialidades_db';
 
-    // ... (El resto del archivo sigue igual que antes) ...
-    // --- 2. Referencias al DOM ---
+  
+    // --- 2. DOM ---
     const formContainer = document.getElementById('form-container-especialidad');
     const especialidadForm = document.getElementById('form-especialidad');
     const especialidadIdInput = document.getElementById('especialidad-id');
@@ -27,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnCancelar = document.getElementById('btn-cancelar');
     const tablaEspecialidadesBody = document.getElementById('tabla-especialidades-body');
 
-    // --- 3. Funciones Helper (Ayudantes) ---
+    // --- 3. Funciones  ---
     const getEspecialidades = () => {
         const data = localStorage.getItem(ESPECIALIDADES_KEY);
         return data ? JSON.parse(data) : [];
@@ -36,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem(ESPECIALIDADES_KEY, JSON.stringify(data));
     };
 
-    // --- 4. Funciones Principales del CRUD ---
+    // --- 4. Funciones Principales ---
     const renderizarTabla = () => {
         const especialidades = getEspecialidades();
         tablaEspecialidadesBody.innerHTML = '';
@@ -124,11 +122,10 @@ document.addEventListener('DOMContentLoaded', () => {
         especialidadIdInput.value = '';
     };
 
-    // --- 5. Eventos Iniciales ---
+    // --- 5. Eventos ---
     especialidadForm.addEventListener('submit', handleFormSubmit);
     btnNuevaEspecialidad.addEventListener('click', mostrarFormulario);
     btnCancelar.addEventListener('click', ocultarFormulario);
 
-    // --- 6. Carga Inicial ---
     renderizarTabla();
 });

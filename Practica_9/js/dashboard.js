@@ -1,7 +1,6 @@
-/* === SCRIPT MÓDULO DE DASHBOARD === */
+
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- ¡NUEVO! Bloque de Seguridad por Rol ---
     // Definimos qué roles pueden ver esta página
     const rolesPermitidos = ['Admin', 'Recepcionista', 'Medico'];
     const userRole = localStorage.getItem('userRole');
@@ -9,10 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!rolesPermitidos.includes(userRole)) {
         // Si el rol del usuario NO está en la lista
         alert('Acceso Denegado. No tienes permisos para ver esta página.');
-        window.location.href = 'index.html'; // Lo mandamos al inicio (o login)
-        return; // Detenemos la ejecución
+        window.location.href = 'index.html'; // Lo mandamos al login
+        return; 
     }
-    // --- Fin del Bloque de Seguridad ---
 
 
     // --- 1. Definición de llaves de Local Storage ---
@@ -21,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const AGENDA_KEY = 'agenda_db';
     const USERNAME_KEY = 'username';
 
-    // ... (El resto del archivo sigue igual que antes) ...
     // --- 2. Referencias a Elementos del DOM ---
     const statPacientesEl = document.getElementById('stat-pacientes');
     const statCitasHoyEl = document.getElementById('stat-citas-hoy');
@@ -34,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return data ? JSON.parse(data) : [];
     };
 
-    // --- 4. Funciones de Cómputo ---
+    // --- 4. Funciones ---
     const actualizarConteoPacientes = () => {
         const pacientes = getData(PACIENTES_KEY);
         statPacientesEl.textContent = pacientes.length;
@@ -68,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- 5. Ejecución ---
+
     actualizarConteoPacientes();
     actualizarConteoMedicos();
     actualizarConteoCitasHoy();
