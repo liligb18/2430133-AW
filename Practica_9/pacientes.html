@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Pacientes</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <div class="app-container">
+
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fas fa-heartbeat"></i> Clínica Bienestar</h3>
+            </div>
+            <ul class="sidebar-menu">
+                <li id="menu-dashboard"><a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li id="menu-pacientes" class="active"><a href="pacientes.html"><i class="fas fa-users"></i> Pacientes</a></li>
+                <li id="menu-agenda"><a href="agenda.html"><i class="fas fa-calendar-alt"></i> Agenda</a></li>
+                <li id="menu-medicos"><a href="medicos.html"><i class="fas fa-user-md"></i> Médicos</a></li>
+                <li id="menu-pagos"><a href="#"><i class="fas fa-file-invoice-dollar"></i> Pagos</a></li>
+                <li id="menu-reportes"><a href="#"><i class="fas fa-chart-bar"></i> Reportes</a></li>
+                <li id="menu-tarifas"><a href="#"><i class="fas fa-tags"></i> Tarifas</a></li>
+                <li id="menu-especialidades"><a href="especialidades.html"><i class="fas fa-stethoscope"></i> Especialidades</a></li>
+                <li id="menu-bitacoras"><a href="#"><i class="fas fa-clipboard-list"></i> Bitácoras</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <a href="#" id="logout-button"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <header class="main-header">
+                <h2>Control de Pacientes</h2>
+                <p>Gestión de altas, bajas y modificaciones de pacientes.</p>
+            </header>
+
+            <div class="content-wrapper">
+
+                <div style="margin-bottom: 1.5rem;">
+                    <button class="btn btn-primary" id="btn-nuevo-paciente">
+                        <i class="fas fa-plus"></i> Nuevo Paciente
+                    </button>
+                </div>
+
+                <div class="form-container" id="form-container-paciente">
+                    <form id="form-paciente">
+                        <input type="hidden" id="paciente-id">
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="nombre">Nombre Completo</label>
+                                <input type="text" id="nombre" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="curp">CURP</label>
+                                <input type="text" id="curp">
+                            </div>
+                            <div class="form-group">
+                                <label for="fecha-nacimiento">Fecha de Nacimiento</label>
+                                <input type="date" id="fecha-nacimiento">
+                            </div>
+                            <div class="form-group">
+                                <label for="sexo">Sexo</label>
+                                <select id="sexo">
+                                    <option value="M">Masculino</option>
+                                    <option value="F">Femenino</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="telefono">Teléfono</label>
+                                <input type="tel" id="telefono">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Correo Electrónico</label>
+                                <input type="email" id="email">
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="direccion">Dirección</label>
+                                <textarea id="direccion"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contacto-emergencia">Contacto de Emergencia</label>
+                                <input type="text" id="contacto-emergencia">
+                            </div>
+                            <div class="form-group">
+                                <label for="telefono-emergencia">Teléfono de Emergencia</label>
+                                <input type="tel" id="telefono-emergencia">
+                            </div>
+                            
+                            <div class="form-group full-width">
+                                <label for="alergias">Alergias</label>
+                                <textarea id="alergias" placeholder="Ej. Penicilina, Paracetamol..."></textarea>
+                            </div>
+                            
+                            <div class="form-group full-width">
+                                <label for="antecedentes">Antecedentes Médicos</label>
+                                <textarea id="antecedentes" placeholder="Ej. Hipertensión, Diabetes tipo 2..."></textarea>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-secondary" id="btn-cancelar">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Guardar Paciente</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+
+                <div class="card">
+                    <h3>Pacientes Registrados</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>CURP</th>
+                                    <th>Teléfono</th>
+                                    <th>Correo</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-pacientes-body">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/pacientes.js"></script>
+</body>
+</html>
