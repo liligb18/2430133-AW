@@ -1,4 +1,3 @@
-/* === SCRIPT MÓDULO DE DASHBOARD === */
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- Bloque de Seguridad por Rol ---
@@ -11,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // --- 1. Definición de llaves de Local Storage ---
+    // --- 1. llaves de Local Storage ---
     const PACIENTES_KEY = 'pacientes_db';
     const MEDICOS_KEY = 'medicos_db';
     const AGENDA_KEY = 'agenda_db';
@@ -29,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return data ? JSON.parse(data) : [];
     };
 
-    // --- 4. Funciones de Cómputo ---
+    // --- 4. Funciones ---
     const actualizarConteoPacientes = () => {
         const pacientes = getData(PACIENTES_KEY);
         statPacientesEl.textContent = pacientes.length;

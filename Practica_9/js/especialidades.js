@@ -1,4 +1,3 @@
-/* === SCRIPT MÓDULO DE ESPECIALIDADES === */
 document.addEventListener('DOMContentLoaded', () => {
     const rolesPermitidos = ['Admin'];
     const userRole = localStorage.getItem('userRole');
@@ -74,9 +73,9 @@ document.addEventListener('DOMContentLoaded', () => {
             especialidades.push(data);
         }
         saveEspecialidades(especialidades);
-        // --- ¡BITÁCORA! ---
+        
         window.registrarBitacora('Especialidades', accionBitacora, `Se guardó la especialidad '${data.nombre}'.`);
-        // --- Fin Bitácora ---
+        
         renderizarTabla();
         ocultarFormulario();
     };
@@ -96,9 +95,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let especialidades = getEspecialidades();
         especialidades = especialidades.filter(e => e.id !== id);
         saveEspecialidades(especialidades);
-        // --- ¡BITÁCORA! ---
+        
         window.registrarBitacora('Especialidades', 'Eliminación', `Se eliminó la especialidad '${nombre}'.`);
-        // --- Fin Bitácora ---
+       
         renderizarTabla();
     };
     const mostrarFormulario = () => {

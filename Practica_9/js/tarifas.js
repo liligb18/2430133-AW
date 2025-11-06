@@ -1,4 +1,3 @@
-/* === SCRIPT MÓDULO DE TARIFAS === */
 document.addEventListener('DOMContentLoaded', () => {
     const rolesPermitidos = ['Admin'];
     const userRole = localStorage.getItem('userRole');
@@ -52,30 +51,38 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener('click', handleEliminar);
         });
     };
+    
     const handleFormSubmit = (event) => {
         event.preventDefault();
-        const id = tarifaIdInput.value;
-        const data = {
-            id: id || `tarifa_${Date.now()}`,
-            nombre: nombreInput.value,
-            costo: costoInput.value
-        };
-        const tarifas = getTarifas();
-        let accionBitacora = 'Actualización';
-        if (id) {
-            const index = tarifas.findIndex(t => t.id === id);
-            if (index !== -1) tarifas[index] = data;
-        } else {
-            accionBitacora = 'Creación';
-            tarifas.push(data);
+        try {
+            // --- INICIO VALIDACIONES ---
+            const id = tarifaIdInput.value;
+            const nombre = Validaciones.validarCampoTexto(nombreInput.value, 'Nombre del Servicio');
+            const costo = Validaciones.validarCosto(costoInput.value);
+            // --- FIN VALIDACIONES ---
+            
+            const data = { id: id || `tarifa_${Date.now()}`, nombre: nombre, costo: costo };
+            const tarifas = getTarifas();
+            let accionBitacora = 'Actualización';
+            
+            if (id) {
+                const index = tarifas.findIndex(t => t.id === id);
+                if (index !== -1) tarifas[index] = data;
+            } else {
+                accionBitacora = 'Creación';
+                tarifas.push(data);
+            }
+            saveTarifas(tarifas);
+            
+            window.registrarBitacora('Tarifas', accionBitacora, `Se guardó la tarifa '${data.nombre}' (Costo: $${data.costo}).`);
+            
+            renderizarTabla();
+            ocultarFormulario();
+        } catch (error) {
+            console.warn(error.message);
         }
-        saveTarifas(tarifas);
-        // --- ¡BITÁCORA! ---
-        window.registrarBitacora('Tarifas', accionBitacora, `Se guardó la tarifa '${data.nombre}' (Costo: $${data.costo}).`);
-        // --- Fin Bitácora ---
-        renderizarTabla();
-        ocultarFormulario();
     };
+
     const handleEditar = (event) => {
         const id = event.currentTarget.dataset.id;
         const data = getTarifas().find(t => t.id === id);
@@ -89,12 +96,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const id = event.currentTarget.dataset.id;
         const nombre = event.currentTarget.dataset.nombre;
         if (!confirm('¿Estás seguro de eliminar esta tarifa?')) return;
+        
         let tarifas = getTarifas();
         tarifas = tarifas.filter(t => t.id !== id);
         saveTarifas(tarifas);
-        // --- ¡BITÁCORA! ---
+        
         window.registrarBitacora('Tarifas', 'Eliminación', `Se eliminó la tarifa '${nombre}'.`);
-        // --- Fin Bitácora ---
+        
         renderizarTabla();
     };
     const mostrarFormulario = () => {

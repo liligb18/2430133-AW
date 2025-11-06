@@ -1,4 +1,3 @@
-/* === SCRIPT MÓDULO DE REPORTES === */
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- Bloque de Seguridad ---
@@ -26,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tablaReporteBody = document.querySelector('#tabla-reporte-medico tbody');
     const tituloReporte = document.getElementById('titulo-reporte-medico');
 
-    // --- Funciones Helper ---
+    // --- Funciones ---
     const getCitas = () => JSON.parse(localStorage.getItem(AGENDA_KEY) || '[]');
     const getPacientes = () => JSON.parse(localStorage.getItem(PACIENTES_KEY) || '[]');
     const getMedicos = () => JSON.parse(localStorage.getItem(MEDICOS_KEY) || '[]');
@@ -40,7 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) { return fechaString; }
     };
 
-    // --- Lógica del Módulo ---
 
     /**
      * Reporte 1: Carga el resumen financiero
@@ -51,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let consultasPagadas = 0;
         let pagosPendientes = 0;
 
-        // Iteramos solo sobre citas que NO estén canceladas
+        // Iteramos solo sobre citas que no estén canceladas
         citas.filter(c => c.estatus !== 'Cancelada').forEach(cita => {
             if (cita.pagoEstatus === 'Pagado' && cita.montoPagado) {
                 totalRecaudado += parseFloat(cita.montoPagado);
@@ -93,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let citas = getCitas();
 
         let nombreMedico = "Todos los Médicos";
-        // Si se seleccionó un médico, filtramos
+        // Si se seleccionó un médico, filtra
         if (medicoId) {
             citas = citas.filter(c => c.medicoId === medicoId);
             nombreMedico = medicos.find(m => m.id === medicoId)?.nombre || 'N/A';
@@ -128,9 +126,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         cardReporte.style.display = 'block';
         
-        // --- ¡BITÁCORA! ---
+       
         window.registrarBitacora('Reportes', 'Generación', `Se generó reporte de citas para '${nombreMedico}'.`);
-        // --- Fin Bitácora ---
+       
     };
 
     // --- Eventos ---

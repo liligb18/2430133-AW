@@ -1,4 +1,3 @@
-/* === SCRIPT MÓDULO DE BITÁCORAS === */
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- Bloque de Seguridad ---
@@ -13,11 +12,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Llave de Local Storage ---
     const BITACORAS_KEY = 'bitacoras_db';
 
-    // --- Referencias al DOM ---
+   
     const tablaBitacorasBody = document.getElementById('tabla-bitacoras-body');
     const btnLimpiarBitacora = document.getElementById('btn-limpiar-bitacora');
 
-    // --- Funciones Helper ---
+    // --- Funciones ---
     const getBitacoras = () => JSON.parse(localStorage.getItem(BITACORAS_KEY) || '[]');
     const saveBitacoras = (data) => localStorage.setItem(BITACORAS_KEY, JSON.stringify(data));
 
@@ -33,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Lógica del Módulo ---
     const renderizarTabla = () => {
         const bitacoras = getBitacoras();
-        // Ordenamos en reverso (más reciente primero)
+
         bitacoras.reverse(); 
         
         tablaBitacorasBody.innerHTML = '';
@@ -59,14 +58,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!confirm('¿Estás seguro de que deseas limpiar TODA la bitácora? Esta acción no se puede deshacer.')) {
             return;
         }
-        saveBitacoras([]); // Guardamos un array vacío
+        saveBitacoras([]); 
         renderizarTabla();
         window.registrarBitacora('Bitácora', 'Limpieza', 'Se limpió el registro de bitácora.');
     };
 
-    // --- Eventos ---
+   
     btnLimpiarBitacora.addEventListener('click', limpiarBitacora);
 
-    // --- Carga Inicial ---
+  
     renderizarTabla();
 });

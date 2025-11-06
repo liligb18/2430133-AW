@@ -43,12 +43,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('medicoId', foundUser.medicoId);
             }
 
-            // --- ¡BITÁCORA! ---
-            // (La registramos después de poner el username en localStorage)
+            
             if(window.registrarBitacora) {
                 window.registrarBitacora('Login', 'Inicio de Sesión', `Usuario '${username}' accedió al sistema.`);
             }
-            // --- Fin Bitácora ---
+           
             
             window.location.href = 'index.html';
 

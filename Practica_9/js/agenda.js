@@ -1,5 +1,6 @@
-/* === SCRIPT MÓDULO DE AGENDA === */
 document.addEventListener('DOMContentLoaded', () => {
+
+    // --- Bloque de Seguridad ---
     const rolesPermitidos = ['Admin', 'Recepcionista', 'Medico'];
     const userRole = localStorage.getItem('userRole');
     if (!rolesPermitidos.includes(userRole)) {
@@ -7,9 +8,15 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'index.html';
         return;
     }
+
+    // --- Constantes del Módulo ---
     const AGENDA_KEY = 'agenda_db';
     const PACIENTES_KEY = 'pacientes_db';
     const MEDICOS_KEY = 'medicos_db';
+    // las citas duran 30 minutos
+    const DURACION_CITA_MS = 30 * 60 * 1000; 
+
+    
     const formContainer = document.getElementById('form-container-cita');
     const citaForm = document.getElementById('form-cita');
     const citaIdInput = document.getElementById('cita-id');
@@ -22,11 +29,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnCancelar = document.getElementById('btn-cancelar');
     const tablaCitasBody = document.getElementById('tabla-citas-body');
     const searchBar = document.getElementById('search-bar');
+    
+    // --- Funciones  ---
     const getCitas = () => JSON.parse(localStorage.getItem(AGENDA_KEY) || '[]');
     const saveCitas = (data) => localStorage.setItem(AGENDA_KEY, JSON.stringify(data));
     const getPacientes = () => JSON.parse(localStorage.getItem(PACIENTES_KEY) || '[]');
     const getMedicos = () => JSON.parse(localStorage.getItem(MEDICOS_KEY) || '[]');
-
+    const formatearFecha = (fechaString) => {
+        if (!fechaString) return 'N/A';
+        try {
+            const fecha = new Date(fechaString);
+            const opciones = { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+            return fecha.toLocaleString('es-MX', opciones);
+        } catch (e) { return fechaString; }
+    };
+    
+    // --- Funciones ---
     const cargarSelects = () => {
         const pacientes = getPacientes();
         pacienteSelect.innerHTML = '<option value="">Seleccione un paciente...</option>';
@@ -45,23 +63,18 @@ document.addEventListener('DOMContentLoaded', () => {
             medicoSelect.appendChild(option);
         });
     };
-    const formatearFecha = (fechaString) => {
-        if (!fechaString) return 'N/A';
-        try {
-            const fecha = new Date(fechaString);
-            const opciones = { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' };
-            return fecha.toLocaleString('es-MX', opciones);
-        } catch (e) { return fechaString; }
-    };
+    
     const renderizarTabla = (filtro = '') => {
         let citas = getCitas();
         const pacientes = getPacientes();
         const medicos = getMedicos();
         const filtroLower = filtro.toLowerCase();
+        
         if (userRole === 'Medico') {
             const medicoIdLogueado = localStorage.getItem('medicoId');
             citas = citas.filter(c => c.medicoId === medicoIdLogueado);
         }
+
         let citasEnriquecidas = citas.map(cita => {
             const paciente = pacientes.find(p => p.id === cita.pacienteId);
             const medico = medicos.find(m => m.id === cita.medicoId);
@@ -71,18 +84,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 nombreMedico: medico ? medico.nombre : ''
             };
         });
+
         if (filtroLower) {
             citasEnriquecidas = citasEnriquecidas.filter(c => 
                 c.nombrePaciente.toLowerCase().includes(filtroLower) ||
                 c.nombreMedico.toLowerCase().includes(filtroLower)
             );
         }
+        
         tablaCitasBody.innerHTML = '';
         if (citasEnriquecidas.length === 0) {
             tablaCitasBody.innerHTML = `<tr><td colspan="6" style="text-align: center;">No hay citas ${filtro ? 'que coincidan' : 'programadas'}.</td></tr>`;
             return;
         }
+
         citasEnriquecidas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
         citasEnriquecidas.forEach(cita => {
             const estatusPago = cita.pagoEstatus || 'Pendiente';
             const clasePago = estatusPago === 'Pagado' ? 'status-pagado' : 'status-pendiente';
@@ -113,6 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         asignarEventosBotones();
     };
+
     const asignarEventosBotones = () => {
         document.querySelectorAll('.btn-editar-cita').forEach(btn => {
             btn.addEventListener('click', handleEditar);
@@ -124,43 +142,112 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener('click', handleAtender);
         });
     };
+
     const handleAtender = (event) => {
         const citaId = event.currentTarget.dataset.citaId;
         const pacienteId = event.currentTarget.dataset.pacienteId;
         window.location.href = `consulta.html?citaId=${citaId}&pacienteId=${pacienteId}`;
     };
+
+    /**
+     * Valida si una nueva cita entra en conflicto con el horario del médico o con otra cita.
+     * @param {string} medicoId 
+     * @param {string} fechaHoraCita 
+     * @param {string} citaActualId 
+     */
+    const validarDisponibilidadCita = (medicoId, fechaHoraCita, citaActualId = null) => {
+        
+        // --- 1. Validar contra el Horario del Médico ---
+        const medico = getMedicos().find(m => m.id === medicoId);
+        if (!medico || !medico.horario) {
+            Validaciones.mostrarError('El médico seleccionado no tiene un horario configurado. Contacte al Admin.');
+        }
+
+        const fecha = new Date(fechaHoraCita);
+        const diaSemana = ['D', 'L', 'M', 'X', 'J', 'V', 'S'][fecha.getDay()];
+        const horaCita = fecha.toTimeString().substring(0, 5); // Formato "HH:MM"
+
+        if (!medico.horario.dias.includes(diaSemana)) {
+            Validaciones.mostrarError(`El Dr. ${medico.nombre} no trabaja los días ${diaSemana} (Domingo=D, Lunes=L...).`);
+        }
+        if (horaCita < medico.horario.entrada || horaCita > medico.horario.salida) {
+            Validaciones.mostrarError(`La cita (${horaCita}) está fuera del horario del Dr. ( ${medico.horario.entrada} - ${medico.horario.salida} ).`);
+        }
+
+        // --- 2. Validar contra Otras Citas ---
+        const citas = getCitas();
+        const nuevaCitaInicio = fecha.getTime();
+        const nuevaCitaFin = nuevaCitaInicio + DURACION_CITA_MS;
+
+        for (const cita of citas) {
+            
+            if (cita.id === citaActualId) {
+                continue;
+            }
+
+            // Solo nos importan las citas del mismo médico
+            if (cita.medicoId === medicoId) {
+                const citaExistenteInicio = new Date(cita.fecha).getTime();
+                const citaExistenteFin = citaExistenteInicio + DURACION_CITA_MS;
+
+                
+                const hayConflicto = (nuevaCitaInicio < citaExistenteFin) && (nuevaCitaFin > citaExistenteInicio);
+
+                if (hayConflicto) {
+                    Validaciones.mostrarError(`¡Conflicto de Horario! El Dr. ${medico.nombre} ya tiene una cita programada a las ${formatearFecha(cita.fecha)}.`);
+                }
+            }
+        }
+    };
+
+
     const handleFormSubmit = (event) => {
         event.preventDefault();
-        const id = citaIdInput.value;
-        const [pacienteId, medicoId] = [pacienteSelect.value, medicoSelect.value];
-        const citaData = {
-            id: id || `cita_id_${Date.now()}`,
-            pacienteId: pacienteId, 
-            medicoId: medicoId,
-            fecha: fechaInput.value,
-            estatus: estatusSelect.value,
-            motivo: motivoInput.value,
-            pagoEstatus: id ? getCitas().find(c=>c.id === id).pagoEstatus : 'Pendiente',
-            montoPagado: id ? getCitas().find(c=>c.id === id).montoPagado : null,
-            tarifaId: id ? getCitas().find(c=>c.id === id).tarifaId : null
-        };
-        const citas = getCitas();
-        let accionBitacora = 'Actualización';
-        if (id) {
-            const index = citas.findIndex(c => c.id === id);
-            if (index !== -1) citas[index] = citaData;
-        } else {
-            accionBitacora = 'Creación';
-            citas.push(citaData);
+        try {
+            // --- INICIO VALIDACIONES ---
+            const id = citaIdInput.value;
+            const pacienteId = Validaciones.validarCampoTexto(pacienteSelect.value, 'Paciente');
+            const medicoId = Validaciones.validarCampoTexto(medicoSelect.value, 'Médico');
+            const fechaHora = Validaciones.validarFechaNoPasada(fechaInput.value, 'Fecha y Hora');
+
+            
+            validarDisponibilidadCita(medicoId, fechaHora, id);
+        
+            
+            const citaData = {
+                id: id || `cita_id_${Date.now()}`,
+                pacienteId: pacienteId, 
+                medicoId: medicoId,
+                fecha: fechaHora,
+                estatus: estatusSelect.value,
+                motivo: motivoInput.value.trim(),
+                pagoEstatus: id ? getCitas().find(c=>c.id === id).pagoEstatus : 'Pendiente',
+                montoPagado: id ? getCitas().find(c=>c.id === id).montoPagado : null,
+                tarifaId: id ? getCitas().find(c=>c.id === id).tarifaId : null
+            };
+            
+            const citas = getCitas();
+            let accionBitacora = 'Actualización';
+            if (id) {
+                const index = citas.findIndex(c => c.id === id);
+                if (index !== -1) citas[index] = citaData;
+            } else {
+                accionBitacora = 'Creación';
+                citas.push(citaData);
+            }
+            saveCitas(citas);
+            
+            const nombrePaciente = getPacientes().find(p => p.id === pacienteId)?.nombre || 'N/A';
+            window.registrarBitacora('Agenda', accionBitacora, `Se guardó cita para '${nombrePaciente}' (ID: ${citaData.id}).`);
+            
+            renderizarTabla(searchBar.value);
+            ocultarFormulario();
+
+        } catch (error) {
+            console.warn(error.message);
         }
-        saveCitas(citas);
-        // --- ¡BITÁCORA! ---
-        const nombrePaciente = getPacientes().find(p => p.id === pacienteId)?.nombre || 'N/A';
-        window.registrarBitacora('Agenda', accionBitacora, `Se guardó cita para '${nombrePaciente}' (ID: ${citaData.id}).`);
-        // --- Fin Bitácora ---
-        renderizarTabla(searchBar.value);
-        ocultarFormulario();
     };
+
     const handleEditar = (event) => {
         const id = event.currentTarget.dataset.id;
         const cita = getCitas().find(c => c.id === id);
@@ -173,18 +260,21 @@ document.addEventListener('DOMContentLoaded', () => {
         motivoInput.value = cita.motivo;
         mostrarFormulario();
     };
+
     const handleEliminar = (event) => {
         const id = event.currentTarget.dataset.id;
         const nombrePaciente = event.currentTarget.dataset.pacienteNombre;
         if (!confirm('¿Estás seguro de eliminar esta cita?')) return;
+        
         let citas = getCitas();
         citas = citas.filter(c => c.id !== id);
         saveCitas(citas);
-        // --- ¡BITÁCORA! ---
+        
         window.registrarBitacora('Agenda', 'Eliminación', `Se eliminó la cita de '${nombrePaciente}' (ID: ${id}).`);
-        // --- Fin Bitácora ---
+        
         renderizarTabla(searchBar.value);
     };
+
     const mostrarFormulario = () => {
         cargarSelects(); 
         formContainer.style.display = 'block';
@@ -194,6 +284,8 @@ document.addEventListener('DOMContentLoaded', () => {
         citaForm.reset();
         citaIdInput.value = '';
     };
+
+    // --- Eventos Iniciales ---
     citaForm.addEventListener('submit', handleFormSubmit);
     btnNuevaCita.addEventListener('click', mostrarFormulario);
     btnCancelar.addEventListener('click', ocultarFormulario);
@@ -203,5 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (userRole === 'Medico') {
         btnNuevaCita.style.display = 'none';
     }
+
+    // --- Carga Inicial ---
     renderizarTabla();
 });

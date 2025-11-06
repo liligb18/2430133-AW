@@ -1,4 +1,3 @@
-/* === SCRIPT MÓDULO DE PACIENTES === */
 document.addEventListener('DOMContentLoaded', () => {
     const rolesPermitidos = ['Admin', 'Recepcionista', 'Medico'];
     const userRole = localStorage.getItem('userRole');
@@ -76,39 +75,59 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     };
+    
     const handleFormSubmit = (event) => {
         event.preventDefault();
-        const id = pacienteIdInput.value;
-        const pacienteData = {
-            id: id || `pac_id_${Date.now()}`, 
-            nombre: nombreInput.value,
-            curp: curpInput.value,
-            fechaNacimiento: fechaNacimientoInput.value,
-            sexo: sexoInput.value,
-            telefono: telefonoInput.value,
-            email: emailInput.value,
-            direccion: direccionInput.value,
-            contactoEmergencia: contactoEmergenciaInput.value,
-            telefonoEmergencia: telefonoEmergenciaInput.value,
-            alergias: alergiasInput.value,
-            antecedentes: antecedentesInput.value
-        };
-        const pacientes = getPacientes();
-        let accionBitacora = 'Actualización';
-        if (id) {
-            const index = pacientes.findIndex(p => p.id === id);
-            if (index !== -1) pacientes[index] = pacienteData;
-        } else {
-            accionBitacora = 'Creación';
-            pacientes.push(pacienteData);
+        try {
+            // --- INICIO VALIDACIONES ---
+            const id = pacienteIdInput.value;
+            const nombre = Validaciones.validarCampoTexto(nombreInput.value, 'Nombre Completo');
+            const fechaNacimiento = Validaciones.validarFechaNoFutura(fechaNacimientoInput.value, 'Fecha de Nacimiento');
+            const sexo = Validaciones.validarCampoTexto(sexoInput.value, 'Sexo');
+            
+            // Validaciones opcionales
+            const curp = Validaciones.validarCURP(curpInput.value);
+            const telefono = Validaciones.validarTelefono(telefonoInput.value);
+            const email = Validaciones.validarEmail(emailInput.value);
+            const telefonoEmergencia = Validaciones.validarTelefono(telefonoEmergenciaInput.value);
+            // --- FIN VALIDACIONES ---
+
+            const pacienteData = {
+                id: id || `pac_id_${Date.now()}`, 
+                nombre: nombre,
+                curp: curp,
+                fechaNacimiento: fechaNacimiento,
+                sexo: sexo,
+                telefono: telefono,
+                email: email,
+                direccion: direccionInput.value.trim(),
+                contactoEmergencia: contactoEmergenciaInput.value.trim(),
+                telefonoEmergencia: telefonoEmergencia,
+                alergias: alergiasInput.value.trim(),
+                antecedentes: antecedentesInput.value.trim()
+            };
+            
+            const pacientes = getPacientes();
+            let accionBitacora = 'Actualización';
+            if (id) {
+                const index = pacientes.findIndex(p => p.id === id);
+                if (index !== -1) pacientes[index] = pacienteData;
+            } else {
+                accionBitacora = 'Creación';
+                pacientes.push(pacienteData);
+            }
+            savePacientes(pacientes);
+            
+            window.registrarBitacora('Pacientes', accionBitacora, `Se guardó al paciente '${pacienteData.nombre}' (ID: ${pacienteData.id}).`);
+            
+            renderizarTabla(searchBar.value);
+            ocultarFormulario();
+
+        } catch (error) {
+            console.warn(error.message);
         }
-        savePacientes(pacientes);
-        // --- ¡BITÁCORA! ---
-        window.registrarBitacora('Pacientes', accionBitacora, `Se guardó al paciente '${pacienteData.nombre}' (ID: ${pacienteData.id}).`);
-        // --- Fin Bitácora ---
-        renderizarTabla(searchBar.value);
-        ocultarFormulario();
     };
+
     const handleEditar = (event) => {
         const id = event.currentTarget.dataset.id;
         const paciente = getPacientes().find(p => p.id === id);
@@ -146,9 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let pacientes = getPacientes();
         pacientes = pacientes.filter(p => p.id !== id);
         savePacientes(pacientes);
-        // --- ¡BITÁCORA! ---
         window.registrarBitacora('Pacientes', 'Eliminación', `Se eliminó al paciente '${nombre}' (ID: ${id}).`);
-        // --- Fin Bitácora ---
         renderizarTabla(searchBar.value);
     };
     const mostrarFormulario = () => {

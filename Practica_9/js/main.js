@@ -1,16 +1,15 @@
-/* === SCRIPT GLOBAL === */
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- 1. Verificación de Autenticación (¿Quién eres?) ---
+    // --- 1. Verificación de Autenticación ---
     const isAuthenticated = localStorage.getItem('isAuthenticated');
-    const userRole = localStorage.getItem('userRole'); // Obtenemos el ROL
+    const userRole = localStorage.getItem('userRole');
 
     if (!isAuthenticated || isAuthenticated !== 'true') {
         window.location.href = 'login.html';
         return; 
     }
 
-    // --- 2. Funcionalidad de Cerrar Sesión (Logout) ---
+    // --- 2. Cerrar Sesión  ---
     const logoutButton = document.getElementById('logout-button');
     if (logoutButton) {
         logoutButton.addEventListener('click', (event) => {
@@ -30,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 3. Gestión de Visibilidad del Menú por Rol ---
+    // --- 3. Visibilidad del Menú por Rol ---
     const gestionarVisibilidadMenu = (rol) => {
         const menuUsuarios = document.getElementById('menu-usuarios');
         const menuMedicos = document.getElementById('menu-medicos');
@@ -61,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (menuPagos) menuPagos.style.display = 'block';
         
         } else if (rol === 'Medico') {
-            // (Ya ve Pacientes y Agenda por defecto)
+            
         }
     };
 
@@ -69,16 +68,15 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// --- 4. ¡NUEVO! FUNCIÓN GLOBAL DE BITÁCORA ---
+// --- 4. FUNCIÓN GLOBAL DE BITÁCORA ---
 // La definimos fuera del 'DOMContentLoaded' para hacerla global
 const BITACORAS_KEY = 'bitacoras_db';
 const MAX_BITACORAS = 100; // Límite de registros en bitácora
 
 /**
- * Registra una acción en la bitácora global de LocalStorage.
- * @param {string} modulo - Módulo que origina la acción (Ej. "Pacientes", "Login").
- * @param {string} accion - Acción realizada (Ej. "Creación", "Eliminación").
- * @param {string} detalle - Detalle del evento (Ej. "Se creó al paciente Juan Pérez").
+ * @param {string} modulo - Módulo que origina la acción.
+ * @param {string} accion - Acción realizada.
+ * @param {string} detalle - Detalle.
  */
 window.registrarBitacora = (modulo, accion, detalle) => {
     try {

@@ -1,4 +1,3 @@
-/* === SCRIPT MÓDULO DE USUARIOS === */
 document.addEventListener('DOMContentLoaded', () => {
     const rolesPermitidos = ['Admin'];
     const userRole = localStorage.getItem('userRole');
@@ -74,44 +73,56 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener('click', handleEliminar);
         });
     };
+    
     const handleFormSubmit = (event) => {
         event.preventDefault();
-        const id = userIdInput.value;
-        const usuarios = getUsers();
-        const username = usernameInput.value;
-        if (!id && usuarios.some(u => u.username === username)) {
-            alert('Error: El nombre de usuario ya existe.');
-            return;
-        }
-        const data = {
-            id: id || `user_${Date.now()}`,
-            username: username,
-            rol: rolInput.value,
-            medicoId: rolInput.value === 'Medico' ? medicoLinkSelect.value : null
-        };
-        let accionBitacora = 'Actualización';
-        if (id) {
-            const index = usuarios.findIndex(u => u.id === id);
-            if (index === -1) return;
-            const passwordAnterior = usuarios[index].password;
-            data.password = passwordInput.value ? passwordInput.value : passwordAnterior;
-            usuarios[index] = data;
-        } else {
-            accionBitacora = 'Creación';
-            if (!passwordInput.value) {
-                alert('Error: La contraseña es obligatoria para usuarios nuevos.');
-                return;
+        try {
+            // --- INICIO VALIDACIONES ---
+            const id = userIdInput.value;
+            const usuarios = getUsers();
+            const username = Validaciones.validarCampoTexto(usernameInput.value, 'Nombre de Usuario');
+            const rol = Validaciones.validarCampoTexto(rolInput.value, 'Rol');
+            
+            // Validar que el username no se repita
+            const usuarioExistente = usuarios.find(u => u.username.toLowerCase() === username.toLowerCase());
+            if (usuarioExistente && usuarioExistente.id !== id) {
+                Validaciones.mostrarError('El nombre de usuario ya existe.');
             }
-            data.password = passwordInput.value;
-            usuarios.push(data);
+            
+            // Validar contraseña
+            const password = Validaciones.validarPassword(passwordInput.value, !id); // Es 'nuevo' si no hay ID
+            // --- FIN VALIDACIONES ---
+            
+            const data = {
+                id: id || `user_${Date.now()}`,
+                username: username,
+                rol: rol,
+                medicoId: rol === 'Medico' ? medicoLinkSelect.value : null
+            };
+
+            let accionBitacora = 'Actualización';
+            if (id) {
+                const index = usuarios.findIndex(u => u.id === id);
+                if (index === -1) return;
+                const passwordAnterior = usuarios[index].password;
+                data.password = password ? password : passwordAnterior; // Usamos la 'contraseña' validada
+                usuarios[index] = data;
+            } else {
+                accionBitacora = 'Creación';
+                data.password = password; // Usamos la 'contraseña' validada
+                usuarios.push(data);
+            }
+            saveUsers(usuarios);
+            
+            window.registrarBitacora('Usuarios', accionBitacora, `Se guardó el usuario '${data.username}' (Rol: ${data.rol}).`);
+            
+            renderizarTabla();
+            ocultarFormulario();
+        } catch (error) {
+            console.warn(error.message);
         }
-        saveUsers(usuarios);
-        // --- ¡BITÁCORA! ---
-        window.registrarBitacora('Usuarios', accionBitacora, `Se guardó el usuario '${data.username}' (Rol: ${data.rol}).`);
-        // --- Fin Bitácora ---
-        renderizarTabla();
-        ocultarFormulario();
     };
+
     const handleEditar = (event) => {
         const id = event.currentTarget.dataset.id;
         const data = getUsers().find(u => u.id === id);
@@ -126,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     const handleEliminar = (event) => {
         const id = event.currentTarget.dataset.id;
-        const username = event.currentTarget.dataset.username; // Obtenemos el nombre
+        const username = event.currentTarget.dataset.username;
         if (id === 'user_admin') {
             alert('No se puede eliminar al administrador por defecto.');
             return;
@@ -135,9 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let usuarios = getUsers();
         usuarios = usuarios.filter(u => u.id !== id);
         saveUsers(usuarios);
-        // --- ¡BITÁCORA! ---
         window.registrarBitacora('Usuarios', 'Eliminación', `Se eliminó al usuario '${username}'.`);
-        // --- Fin Bitácora ---
         renderizarTabla();
     };
     const mostrarFormulario = () => {

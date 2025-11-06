@@ -1,4 +1,3 @@
-/* === SCRIPT MÓDULO DE PAGOS === */
 document.addEventListener('DOMContentLoaded', () => {
     const rolesPermitidos = ['Admin', 'Recepcionista'];
     const userRole = localStorage.getItem('userRole');
@@ -127,9 +126,9 @@ document.addEventListener('DOMContentLoaded', () => {
             citas[index].montoPagado = montoFinal;
             citas[index].tarifaId = tarifaId;
             saveCitas(citas);
-            // --- ¡BITÁCORA! ---
+           
             window.registrarBitacora('Pagos', 'Registro', `Se registró pago de $${montoFinal} para la cita ID: ${id}.`);
-            // --- Fin Bitácora ---
+            
             renderizarTabla();
             ocultarFormulario();
         } else {

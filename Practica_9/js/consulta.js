@@ -1,4 +1,3 @@
-/* === SCRIPT MÓDULO DE CONSULTA (EXPEDIENTE) === */
 document.addEventListener('DOMContentLoaded', () => {
     const rolesPermitidos = ['Admin', 'Medico'];
     const userRole = localStorage.getItem('userRole');
@@ -81,34 +80,47 @@ document.addEventListener('DOMContentLoaded', () => {
         motivoTextarea.value = cita.motivo || 'No se especificó motivo.';
         medicoId = cita.medicoId;
     };
+    
     const handleFormSubmit = (event) => {
         event.preventDefault();
-        const nuevoExpediente = {
-            id: `exp_${Date.now()}`,
-            citaId: citaId,
-            pacienteId: pacienteId,
-            medicoId: medicoId,
-            fechaConsulta: new Date().toISOString(),
-            diagnostico: diagnosticoTextarea.value,
-            tratamiento: tratamientoTextarea.value,
-            notas: notasTextarea.value
-        };
-        const expedientes = getExpedientes();
-        expedientes.push(nuevoExpediente);
-        saveExpedientes(expedientes);
-        const citas = getCitas();
-        const indexCita = citas.findIndex(c => c.id === citaId);
-        if (indexCita !== -1) {
-            citas[indexCita].estatus = 'Realizada';
-            saveCitas(citas);
+        try {
+            // --- INICIO VALIDACIONES ---
+            const diagnostico = Validaciones.validarCampoTexto(diagnosticoTextarea.value, 'Diagnóstico');
+            const tratamiento = Validaciones.validarCampoTexto(tratamientoTextarea.value, 'Tratamiento');
+           
+            const nuevoExpediente = {
+                id: `exp_${Date.now()}`,
+                citaId: citaId,
+                pacienteId: pacienteId,
+                medicoId: medicoId,
+                fechaConsulta: new Date().toISOString(),
+                diagnostico: diagnostico,
+                tratamiento: tratamiento,
+                notas: notasTextarea.value.trim()
+            };
+            
+            const expedientes = getExpedientes();
+            expedientes.push(nuevoExpediente);
+            saveExpedientes(expedientes);
+            
+            const citas = getCitas();
+            const indexCita = citas.findIndex(c => c.id === citaId);
+            if (indexCita !== -1) {
+                citas[indexCita].estatus = 'Realizada';
+                saveCitas(citas);
+            }
+            
+            const nombrePaciente = getPacientes().find(p => p.id === pacienteId)?.nombre || 'N/A';
+            window.registrarBitacora('Consulta', 'Registro', `Se guardó expediente para '${nombrePaciente}' (Cita ID: ${citaId}).`);
+            
+            alert('Consulta guardada exitosamente.');
+            window.location.href = 'agenda.html';
+        
+        } catch (error) {
+            console.warn(error.message);
         }
-        // --- ¡BITÁCORA! ---
-        const nombrePaciente = getPacientes().find(p => p.id === pacienteId)?.nombre || 'N/A';
-        window.registrarBitacora('Consulta', 'Registro', `Se guardó expediente para '${nombrePaciente}' (Cita ID: ${citaId}).`);
-        // --- Fin Bitácora ---
-        alert('Consulta guardada exitosamente.');
-        window.location.href = 'agenda.html';
     };
+
     const init = () => {
         const params = new URLSearchParams(window.location.search);
         citaId = params.get('citaId');
@@ -123,8 +135,8 @@ document.addEventListener('DOMContentLoaded', () => {
         cargarDatosPaciente(paciente);
         cargarHistorial(pacienteId);
         cargarDatosCita(cita);
+        
         if (cita && cita.estatus === 'Realizada') {
-            // Si ya está realizada, buscamos el expediente guardado
             const expediente = getExpedientes().find(e => e.citaId === citaId);
             if (expediente) {
                 diagnosticoTextarea.value = expediente.diagnostico;
@@ -140,9 +152,11 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelector('#form-consulta button[type="submit"]').textContent = 'Consulta Finalizada';
         }
     };
+    
     consultaForm.addEventListener('submit', handleFormSubmit);
     btnVolver.addEventListener('click', () => {
         window.location.href = 'agenda.html';
     });
+    
     init();
 });
