@@ -17,7 +17,14 @@ body {
     width: 100%;
     max-width: 400px;
     text-align: center;
+    /* Evita saltos al cambiar de formulario */
     overflow: hidden; 
+}
+
+/* --- ESTILOS DE FORMULARIO --- */
+/* Por defecto, ocultamos el formulario de registro */
+#register-form {
+    display: none;
 }
 
 .login-container h2 {
@@ -48,7 +55,7 @@ body {
     padding: 0.8rem;
     border: 1px solid #ccc;
     border-radius: 8px;
-    box-sizing: border-box; 
+    box-sizing: border-box; /* Asegura que el padding no afecte el ancho */
     font-family: 'Arial', sans-serif;
     font-size: 0.95rem;
 }
@@ -70,8 +77,16 @@ button:hover {
     background-color: #00695c;
 }
 
+/* --- ESTILOS DE MENSAJES Y ENLACES --- */
 .error-message {
     color: #d9534f;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    display: none; /* Oculto por defecto */
+}
+
+.success-message {
+    color: #00897b; /* Verde */
     margin-top: 1rem;
     font-size: 0.9rem;
     display: none; /* Oculto por defecto */
@@ -81,4 +96,14 @@ button:hover {
     margin-top: 1.5rem;
     font-size: 0.9rem;
     color: #666;
+}
+
+.toggle-link a {
+    color: var(--color-primario, #00897b);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.toggle-link a:hover {
+    text-decoration: underline;
 }
