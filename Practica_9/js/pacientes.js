@@ -1,6 +1,4 @@
-/* === SCRIPT MÓDULO DE PACIENTES (MODO API) === */
 document.addEventListener('DOMContentLoaded', () => {
-    
     const rolesPermitidos = ['Admin', 'Recepcionista', 'Medico'];
     const userRole = localStorage.getItem('userRole');
     if (!rolesPermitidos.includes(userRole)) {
@@ -8,10 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'index.html';
         return;
     }
-    
-    const API_URL = 'api/pacientes_api.php';
-
-    // (Referencias al DOM...)
+    const PACIENTES_KEY = 'pacientes_db';
     const formContainer = document.getElementById('form-container-paciente');
     const pacienteForm = document.getElementById('form-paciente');
     const pacienteIdInput = document.getElementById('paciente-id');
@@ -30,68 +25,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnCancelar = document.getElementById('btn-cancelar');
     const tablaPacientesBody = document.getElementById('tabla-pacientes-body');
     const searchBar = document.getElementById('search-bar');
-    
-    // --- Funciones Helper (MODIFICADAS) ---
-    
-    const getPacientes = async () => {
-        try {
-            const respuesta = await fetch(API_URL); // GET por defecto
-            if (!respuesta.ok) {
-                console.error("Respuesta del servidor no OK:", respuesta);
-                throw new Error('Error de red o del servidor al obtener pacientes.');
-            }
-            const pacientes = await respuesta.json();
-            
-            if (pacientes.error) {
-                throw new Error(pacientes.error);
-            }
-            return pacientes;
+    const getPacientes = () => JSON.parse(localStorage.getItem(PACIENTES_KEY) || '[]');
+    const savePacientes = (data) => localStorage.setItem(PACIENTES_KEY, JSON.stringify(data));
 
-        } catch (error) {
-            console.error(error.message);
-            alert('Error: No se pudo cargar la lista de pacientes.');
-            return []; 
-        }
-    };
-    
-    // --- Funciones del CRUD (MODIFICADAS) ---
-
-    const renderizarTabla = async (filtro = '') => {
-        let pacientes;
-        try {
-            pacientes = await getPacientes();
-        } catch (error) {
-            tablaPacientesBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">Error al cargar datos.</td></tr>`;
-            return;
-        }
-
+    const renderizarTabla = (filtro = '') => {
+        let pacientes = getPacientes();
         const filtroLower = filtro.toLowerCase();
         if (filtroLower) {
             pacientes = pacientes.filter(p => 
-                p.NombreCompleto.toLowerCase().includes(filtroLower) ||
-                (p.CURP && p.CURP.toLowerCase().includes(filtroLower)) ||
-                (p.Telefono && p.Telefono.toLowerCase().includes(filtroLower))
+                p.nombre.toLowerCase().includes(filtroLower) ||
+                (p.curp && p.curp.toLowerCase().includes(filtroLower)) ||
+                (p.telefono && p.telefono.toLowerCase().includes(filtroLower))
             );
         }
-        
         tablaPacientesBody.innerHTML = '';
         if (pacientes.length === 0) {
             tablaPacientesBody.innerHTML = `<tr><td colspan="5" style="text-align: center;">No hay pacientes ${filtro ? 'que coincidan' : 'registrados'}.</td></tr>`;
             return;
         }
-
         pacientes.forEach(paciente => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${paciente.NombreCompleto}</td>
-                <td>${paciente.CURP}</td>
-                <td>${paciente.Telefono}</td>
-                <td>${paciente.CorreoElectronico}</td>
+                <td>${paciente.nombre}</td>
+                <td>${paciente.curp}</td>
+                <td>${paciente.telefono}</td>
+                <td>${paciente.email}</td>
                 <td class="actions-cell">
-                    <button class="btn btn-edit btn-editar-paciente" data-id="${paciente.IdPaciente}">
+                    <button class="btn btn-edit btn-editar-paciente" data-id="${paciente.id}">
                         <i class="fas fa-edit"></i> Editar
                     </button>
-                    <button class="btn btn-danger btn-eliminar-paciente" data-id="${paciente.IdPaciente}" data-nombre="${paciente.NombreCompleto}">
+                    <button class="btn btn-danger btn-eliminar-paciente" data-id="${paciente.id}" data-nombre="${paciente.nombre}">
                         <i class="fas fa-trash"></i> Eliminar
                     </button>
                 </td>
@@ -100,7 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         asignarEventosBotones();
     };
-
     const asignarEventosBotones = () => {
         document.querySelectorAll('.btn-editar-paciente').forEach(btn => {
             btn.addEventListener('click', handleEditar);
@@ -114,27 +76,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
     
-    /**
-     * Guarda el paciente (NUEVO o EDITADO) en la API de PHP.
-     * (CON MANEJO DE ERRORES MEJORADO)
-     */
-    const handleFormSubmit = async (event) => {
+    const handleFormSubmit = (event) => {
         event.preventDefault();
-        let pacienteData; // Para poder usarla en el log de error
-
         try {
-            // (Tus validaciones de js/validaciones.js)
+            // --- INICIO VALIDACIONES ---
             const id = pacienteIdInput.value;
             const nombre = Validaciones.validarCampoTexto(nombreInput.value, 'Nombre Completo');
             const fechaNacimiento = Validaciones.validarFechaNoFutura(fechaNacimientoInput.value, 'Fecha de Nacimiento');
             const sexo = Validaciones.validarCampoTexto(sexoInput.value, 'Sexo');
+            
+            // Validaciones opcionales
             const curp = Validaciones.validarCURP(curpInput.value);
             const telefono = Validaciones.validarTelefono(telefonoInput.value);
             const email = Validaciones.validarEmail(emailInput.value);
             const telefonoEmergencia = Validaciones.validarTelefono(telefonoEmergenciaInput.value);
+            // --- FIN VALIDACIONES ---
 
-            pacienteData = {
-                id: id || null, 
+            const pacienteData = {
+                id: id || `pac_id_${Date.now()}`, 
                 nombre: nombre,
                 curp: curp,
                 fechaNacimiento: fechaNacimiento,
@@ -148,66 +107,43 @@ document.addEventListener('DOMContentLoaded', () => {
                 antecedentes: antecedentesInput.value.trim()
             };
             
-            const respuesta = await fetch(API_URL, {
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(pacienteData) 
-            });
-
-            // --- MEJORA DE DEPURACIÓN ---
-            // Leemos la respuesta como TEXTO, no como JSON todavía
-            const respuestaTexto = await respuesta.text();
-
-            if (!respuesta.ok) {
-                // Si el código es 500, 404, etc., respuestaTexto será el error de PHP
-                // (Ej. "Fatal error:...")
-                throw new Error(`Error del Servidor (${respuesta.status}): ${respuestaTexto}`);
+            const pacientes = getPacientes();
+            let accionBitacora = 'Actualización';
+            if (id) {
+                const index = pacientes.findIndex(p => p.id === id);
+                if (index !== -1) pacientes[index] = pacienteData;
+            } else {
+                accionBitacora = 'Creación';
+                pacientes.push(pacienteData);
             }
-
-            // Si la respuesta.ok es true (200), AHORA SÍ intentamos parsear el JSON
-            const resultado = JSON.parse(respuestaTexto);
-
-            if (resultado.error) {
-                // Esto es si PHP nos devuelve un error controlado (ej. CURP duplicada)
-                throw new Error(resultado.error);
-            }
-            // --- FIN DE LA MEJORA ---
-
-            // Si todo salió bien:
+            savePacientes(pacientes);
+            
+            window.registrarBitacora('Pacientes', accionBitacora, `Se guardó al paciente '${pacienteData.nombre}' (ID: ${pacienteData.id}).`);
+            
             renderizarTabla(searchBar.value);
             ocultarFormulario();
 
         } catch (error) {
-            // Este catch AHORA SÍ nos mostrará el error de PHP
-            alert(`Error al guardar: ${error.message}`);
-            console.error("Detalle del error:", error);
-            console.error("Datos enviados:", pacienteData); // Muestra qué intentamos enviar
+            console.warn(error.message);
         }
     };
 
-    /**
-     * Rellena el formulario (igual, pero ASÍNCRONO)
-     */
-    const handleEditar = async (event) => {
+    const handleEditar = (event) => {
         const id = event.currentTarget.dataset.id;
-        const pacientes = await getPacientes();
-        const paciente = pacientes.find(p => p.IdPaciente == id); 
-        
+        const paciente = getPacientes().find(p => p.id === id);
         if (!paciente) return;
-        
-        pacienteIdInput.value = paciente.IdPaciente;
-        nombreInput.value = paciente.NombreCompleto;
-        curpInput.value = paciente.CURP;
-        fechaNacimientoInput.value = paciente.FechaNacimiento;
-        sexoInput.value = paciente.Sexo;
-        telefonoInput.value = paciente.Telefono;
-        emailInput.value = paciente.CorreoElectronico;
-        direccionInput.value = paciente.Direccion;
-        contactoEmergenciaInput.value = paciente.ContactoEmergencia;
-        telefonoEmergenciaInput.value = paciente.TelefonoEmergencia;
-        alergiasInput.value = paciente.Alergias;
-        antecedentesInput.value = paciente.AntecedentesMedicos;
-        
+        pacienteIdInput.value = paciente.id;
+        nombreInput.value = paciente.nombre;
+        curpInput.value = paciente.curp;
+        fechaNacimientoInput.value = paciente.fechaNacimiento;
+        sexoInput.value = paciente.sexo;
+        telefonoInput.value = paciente.telefono;
+        emailInput.value = paciente.email;
+        direccionInput.value = paciente.direccion;
+        contactoEmergenciaInput.value = paciente.contactoEmergencia;
+        telefonoEmergenciaInput.value = paciente.telefonoEmergencia;
+        alergiasInput.value = paciente.alergias;
+        antecedentesInput.value = paciente.antecedentes;
         const esMedico = userRole === 'Medico';
         nombreInput.disabled = esMedico;
         curpInput.disabled = esMedico;
@@ -220,42 +156,18 @@ document.addEventListener('DOMContentLoaded', () => {
         telefonoEmergenciaInput.disabled = esMedico;
         alergiasInput.disabled = false;
         antecedentesInput.disabled = false;
-        
         mostrarFormulario();
     };
-
-    /**
-     * Borra un paciente (ASÍNCRONO)
-     */
-    const handleEliminar = async (event) => {
+    const handleEliminar = (event) => {
         const id = event.currentTarget.dataset.id;
         const nombre = event.currentTarget.dataset.nombre;
-        if (!confirm(`¿Estás seguro de eliminar a ${nombre}?`)) return;
-        
-        try {
-            const respuesta = await fetch(`${API_URL}?id=${id}&nombre=${encodeURIComponent(nombre)}`, {
-                method: 'DELETE'
-            });
-
-            // Usamos la misma lógica de depuración
-            const respuestaTexto = await respuesta.text();
-            if (!respuesta.ok) {
-                 throw new Error(`Error del Servidor (${respuesta.status}): ${respuestaTexto}`);
-            }
-            const resultado = JSON.parse(respuestaTexto);
-            if (resultado.error) {
-                throw new Error(resultado.error);
-            }
-            
-            renderizarTabla(searchBar.value);
-        
-        } catch (error) {
-            alert(error.message);
-            console.warn(error.message);
-        }
+        if (!confirm('¿Estás seguro de eliminar a este paciente?')) return;
+        let pacientes = getPacientes();
+        pacientes = pacientes.filter(p => p.id !== id);
+        savePacientes(pacientes);
+        window.registrarBitacora('Pacientes', 'Eliminación', `Se eliminó al paciente '${nombre}' (ID: ${id}).`);
+        renderizarTabla(searchBar.value);
     };
-    
-    // (Funciones auxiliares y eventos)
     const mostrarFormulario = () => {
         formContainer.style.display = 'block';
     };
@@ -277,7 +189,5 @@ document.addEventListener('DOMContentLoaded', () => {
     if (userRole === 'Medico') {
         btnNuevoPaciente.style.display = 'none';
     }
-
-    // --- Carga Inicial ---
-    renderizarTabla(); 
+    renderizarTabla();
 });

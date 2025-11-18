@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'index.html';
         return;
     }
-    const TARIFAS_KEY = 'tarifas_db';
+    const API_TARIFAS = 'php/api/tarifas.php';
     const formContainer = document.getElementById('form-container-tarifa');
     const tarifaForm = document.getElementById('form-tarifa');
     const tarifaIdInput = document.getElementById('tarifa-id');
@@ -15,17 +15,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnNuevaTarifa = document.getElementById('btn-nueva-tarifa');
     const btnCancelar = document.getElementById('btn-cancelar');
     const tablaTarifasBody = document.getElementById('tabla-tarifas-body');
-    const getTarifas = () => JSON.parse(localStorage.getItem(TARIFAS_KEY) || '[]');
-    const saveTarifas = (data) => localStorage.setItem(TARIFAS_KEY, JSON.stringify(data));
+    const postForm = (data) => fetch(API_TARIFAS, { method: 'POST', headers: {'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'}, body: new URLSearchParams(data) }).then(r => r.json());
+    const apiList = () => fetch(API_TARIFAS).then(r => r.json());
 
-    const renderizarTabla = () => {
-        const tarifas = getTarifas();
-        tablaTarifasBody.innerHTML = '';
-        if (tarifas.length === 0) {
-            tablaTarifasBody.innerHTML = '<tr><td colspan="3" style="text-align: center;">No hay tarifas registradas.</td></tr>';
-            return;
-        }
-        tarifas.forEach(tarifa => {
+    const renderizarTabla = async () => {
+        try {
+            const res = await apiList();
+            const tarifas = (res.success && res.data) ? res.data : [];
+            tablaTarifasBody.innerHTML = '';
+            if (tarifas.length === 0) {
+                tablaTarifasBody.innerHTML = '<tr><td colspan="3" style="text-align: center;">No hay tarifas registradas.</td></tr>';
+                return;
+            }
+            tarifas.forEach(tarifa => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${tarifa.nombre}</td>
@@ -40,8 +42,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
             `;
             tablaTarifasBody.appendChild(tr);
-        });
-        asignarEventosBotones();
+            });
+            asignarEventosBotones();
+        } catch (e) { tablaTarifasBody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:red">Error al cargar</td></tr>'; console.error(e); }
     };
     const asignarEventosBotones = () => {
         document.querySelectorAll('.btn-editar-tarifa').forEach(btn => {
@@ -52,58 +55,48 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
     
-    const handleFormSubmit = (event) => {
+    const handleFormSubmit = async (event) => {
         event.preventDefault();
         try {
-            // --- INICIO VALIDACIONES ---
             const id = tarifaIdInput.value;
             const nombre = Validaciones.validarCampoTexto(nombreInput.value, 'Nombre del Servicio');
             const costo = Validaciones.validarCosto(costoInput.value);
-            // --- FIN VALIDACIONES ---
-            
-            const data = { id: id || `tarifa_${Date.now()}`, nombre: nombre, costo: costo };
-            const tarifas = getTarifas();
-            let accionBitacora = 'Actualización';
-            
+            let res;
             if (id) {
-                const index = tarifas.findIndex(t => t.id === id);
-                if (index !== -1) tarifas[index] = data;
+                res = await postForm({ action: 'update', id, nombre, costo });
             } else {
-                accionBitacora = 'Creación';
-                tarifas.push(data);
+                res = await postForm({ action: 'create', nombre, costo });
             }
-            saveTarifas(tarifas);
-            
-            window.registrarBitacora('Tarifas', accionBitacora, `Se guardó la tarifa '${data.nombre}' (Costo: $${data.costo}).`);
-            
+            if (!res.success) throw new Error(res.message || 'Error al guardar');
+            window.registrarBitacora('Tarifas', id ? 'Actualización' : 'Creación', `Se guardó la tarifa '${nombre}' (Costo: $${costo}).`);
             renderizarTabla();
             ocultarFormulario();
-        } catch (error) {
-            console.warn(error.message);
-        }
+        } catch (error) { console.warn(error.message); alert(error.message || 'Error'); }
     };
 
-    const handleEditar = (event) => {
+    const handleEditar = async (event) => {
         const id = event.currentTarget.dataset.id;
-        const data = getTarifas().find(t => t.id === id);
-        if (!data) return;
-        tarifaIdInput.value = data.id;
-        nombreInput.value = data.nombre;
-        costoInput.value = data.costo;
-        mostrarFormulario();
+        try {
+            const res = await apiList();
+            if (!res.success) throw new Error(res.message || 'Error');
+            const data = (res.data || []).find(t => String(t.id) === String(id));
+            if (!data) return;
+            tarifaIdInput.value = data.id;
+            nombreInput.value = data.nombre;
+            costoInput.value = data.costo;
+            mostrarFormulario();
+        } catch (e) { console.error(e); }
     };
-    const handleEliminar = (event) => {
+    const handleEliminar = async (event) => {
         const id = event.currentTarget.dataset.id;
         const nombre = event.currentTarget.dataset.nombre;
         if (!confirm('¿Estás seguro de eliminar esta tarifa?')) return;
-        
-        let tarifas = getTarifas();
-        tarifas = tarifas.filter(t => t.id !== id);
-        saveTarifas(tarifas);
-        
-        window.registrarBitacora('Tarifas', 'Eliminación', `Se eliminó la tarifa '${nombre}'.`);
-        
-        renderizarTabla();
+        try {
+            const res = await postForm({ action: 'delete', id });
+            if (!res.success) throw new Error(res.message || 'Error');
+            window.registrarBitacora('Tarifas', 'Eliminación', `Se eliminó la tarifa '${nombre}'.`);
+            renderizarTabla();
+        } catch (e) { console.error(e); alert('Error al eliminar'); }
     };
     const mostrarFormulario = () => {
         formContainer.style.display = 'block';

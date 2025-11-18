@@ -1,7 +1,8 @@
+/* --- Estilos Globales --- */
 :root {
-    --color-primario: #00897b; 
+    --color-primario: #00897b; /* Verde-Azul (Teal) */
     --color-primario-oscuro: #00695c;
-    --color-fondo-app: #f4f9f4; 
+    --color-fondo-app: #f4f9f4; /* Verde pastel muy claro */
     --color-fondo-sidebar: #ffffff;
     --color-fondo-header: #ffffff;
     --color-texto: #333;
@@ -126,7 +127,7 @@ body {
     flex-grow: 1;
 }
 
-
+/* --- Componentes --- */
 .card {
     background-color: #ffffff;
     border-radius: 12px;
@@ -247,7 +248,7 @@ body {
     margin-left: 0.5rem;
 }
 
-/* --- Barras de Búsqueda --- */
+/* --- Barras de Búsqueda (NUEVO) --- */
 .search-bar-container {
     margin-bottom: 1.5rem;
     display: flex;
@@ -309,7 +310,7 @@ table .actions-cell {
     gap: 0.5rem;
 }
 
-/* --- Insignias de Estatus--- */
+/* --- Insignias de Estatus (NUEVO) --- */
 .status {
     padding: 0.25rem 0.6rem;
     border-radius: 12px;
@@ -334,7 +335,7 @@ span.alergias {
     font-weight: bold;
 }
 
-/* --- Página de Consulta --- */
+/* --- Página de Consulta (NUEVO) --- */
 .consulta-container {
     display: grid;
     grid-template-columns: 350px 1fr;
@@ -387,8 +388,8 @@ span.alergias {
     .sidebar {
         width: 100%;
         height: auto;
-        flex-direction: row; 
-        display: none; 
+        flex-direction: row; /* Pendiente de ajustar menú */
+        display: none; /* Simplificado - en una app real sería un menú hamburguesa */
     }
     .card-deck {
         flex-direction: column;
