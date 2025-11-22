@@ -4,7 +4,7 @@ require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/security.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ../login.html');
+    header('Location: ../login.php');
     exit;
 }
 
@@ -16,29 +16,29 @@ $confirm = isset($_POST['confirm_password']) ? $_POST['confirm_password'] : '';
 
 // Validaciones básicas
 if ($nombre === '' || $correo === '' || $rol === '' || $password === '' || $confirm === '') {
-    header('Location: ../login.html?reg_error=' . urlencode('Todos los campos son obligatorios.'));
+    header('Location: ../login.php?reg_error=' . urlencode('Todos los campos son obligatorios.'));
     exit;
 }
 
 // Validar CSRF token
 $csrf = $_POST['csrf_token'] ?? '';
 if (!validate_csrf_token($csrf)) {
-    header('Location: ../login.html?reg_error=' . urlencode('Token CSRF inválido.'));
+    header('Location: ../login.php?reg_error=' . urlencode('Token CSRF inválido.'));
     exit;
 }
 
 if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
-    header('Location: ../login.html?reg_error=' . urlencode('Formato de correo inválido.'));
+    header('Location: ../login.php?reg_error=' . urlencode('Formato de correo inválido.'));
     exit;
 }
 
 if (strlen($password) < 6) {
-    header('Location: ../login.html?reg_error=' . urlencode('La contraseña debe tener al menos 6 caracteres.'));
+    header('Location: ../login.php?reg_error=' . urlencode('La contraseña debe tener al menos 6 caracteres.'));
     exit;
 }
 
 if ($password !== $confirm) {
-    header('Location: ../login.html?reg_error=' . urlencode('Las contraseñas no coinciden.'));
+    header('Location: ../login.php?reg_error=' . urlencode('Las contraseñas no coinciden.'));
     exit;
 }
 
@@ -49,7 +49,7 @@ $pdo = getPDO();
 $stmt = $pdo->prepare('SELECT IdUsuario FROM usuarios WHERE Correo = :correo LIMIT 1');
 $stmt->execute(['correo' => $correo]);
 if ($stmt->fetch()) {
-    header('Location: ../login.html?reg_error=' . urlencode('El correo ya está registrado.'));
+    header('Location: ../login.php?reg_error=' . urlencode('El correo ya está registrado.'));
     exit;
 }
 
@@ -66,11 +66,11 @@ try {
 } catch (Exception $e) {
     // Registrar error en log y devolver mensaje genérico al usuario
     @error_log('[' . date('Y-m-d H:i:s') . '] Registro error: ' . $e->getMessage() . "\n", 3, sys_get_temp_dir() . '/app_errors.log');
-    header('Location: ../login.html?reg_error=' . urlencode('Error al crear cuenta. Intenta nuevamente más tarde.'));
+    header('Location: ../login.php?reg_error=' . urlencode('Error al crear cuenta. Intenta nuevamente más tarde.'));
     exit;
 }
 
-header('Location: ../login.html?reg_success=' . urlencode('Cuenta creada correctamente. Ya puedes iniciar sesión.'));
+header('Location: ../login.php?reg_success=' . urlencode('Cuenta creada correctamente. Ya puedes iniciar sesión.'));
 exit;
 
 ?>

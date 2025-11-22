@@ -17,7 +17,7 @@ session_start();
 
 try {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        header('Location: ../login.html');
+        header('Location: ../login.php');
         exit;
     }
 
@@ -25,21 +25,21 @@ try {
     $password = isset($_POST['password']) ? $_POST['password'] : '';
 
     if ($login === '' || $password === '') {
-        header('Location: ../login.html?error=' . urlencode('Usuario y contraseña son requeridos.'));
+        header('Location: ../login.php?error=' . urlencode('Usuario y contraseña son requeridos.'));
         exit;
     }
 
     // Verificar bloqueo por intentos
     $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
     if (is_login_blocked($ip)) {
-        header('Location: ../login.html?error=' . urlencode('Demasiados intentos fallidos. Intenta más tarde.'));
+        header('Location: ../login.php?error=' . urlencode('Demasiados intentos fallidos. Intenta más tarde.'));
         exit;
     }
 
     // Validar CSRF token
     $csrf = $_POST['csrf_token'] ?? '';
     if (!validate_csrf_token($csrf)) {
-        header('Location: ../login.html?error=' . urlencode('Token CSRF inválido.'));
+        header('Location: ../login.php?error=' . urlencode('Token CSRF inválido.'));
         exit;
     }
 
@@ -52,7 +52,7 @@ try {
 
     if (!$user) {
         record_failed_login($ip);
-        header('Location: ../login.html?error=' . urlencode('Usuario o contraseña incorrectos.'));
+        header('Location: ../login.php?error=' . urlencode('Usuario o contraseña incorrectos.'));
         exit;
     }
 
@@ -79,7 +79,7 @@ try {
 
     if (!$passwordOk) {
         record_failed_login($ip);
-        header('Location: ../login.html?error=' . urlencode('Usuario o contraseña incorrectos.'));
+        header('Location: ../login.php?error=' . urlencode('Usuario o contraseña incorrectos.'));
         exit;
     }
 
@@ -114,7 +114,7 @@ try {
     echo '<body><main style="font-family:Arial,Helvetica,sans-serif;max-width:800px;margin:2rem auto;padding:1rem;">';
     echo '<h1>Error interno</h1>';
     echo '<p>Ocurrió un error en el servidor. Los detalles fueron guardados en <code>/tmp/login_error.log</code>.</p>';
-    echo '<p><a href="../login.html">Volver al formulario de inicio de sesión</a></p>';
+    echo '<p><a href="../login.php">Volver al formulario de inicio de sesión</a></p>';
     echo '</main></body></html>';
     exit;
 }
