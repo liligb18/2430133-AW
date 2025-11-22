@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Bajío - Pedidos</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="notificationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div id="modalIcon"></div> <h3 id="modalTitle"></h3> <p id="modalMessage"></p> <button onclick="closeNotification()" class="btn-accept">Aceptar</button> </div>
+        </div>
+    </div>
+
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="header-left">
+                    <button id="menuToggle" class="menu-toggle">
+                        <span class="icon-menu">☰</span>
+                    </button>
+                    <h1 class="logo">El Bajío</h1>
+                </div>
+                
+                <nav id="mainNav" class="main-nav">
+                    <a href="#">Menú</a>
+                    <a href="#">Acerca de</a>
+                    <a href="#">Contacto</a>
+                    <a href="#">Inicio</a>
+                </nav>
+
+                <div class="header-right">
+                    <button class="icon-btn cart-btn">
+                        <span class="icon-cart">🛒</span>
+                        <span id="cartCount" class="cart-badge">0</span>
+                    </button>
+                    <button class="icon-btn">
+                        <span class="icon-user">👤</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="categories-bar">
+            <div class="container">
+                <div class="categories-scroll">
+                    <button class="category-btn active">Nostalgia de Provincia</button>
+                    <button class="category-btn">Almuerzos</button>
+                    <button class="category-btn">Café, Atoles y Chocolates</button>
+                    <button class="category-btn">Sopas, Caldos y Arroces</button>
+                    <button class="category-btn">Carnes</button>
+                    <button class="category-btn">Cervezas</button>
+                    <button class="category-btn">Ensaladas</button>
+                    <button class="category-btn">Postres</button>
+                    <button class="category-btn">Aguas, Cafés y Refrescos</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="content-grid">
+                <section class="products-section">
+                    <h2 class="section-title">Nostalgia de Provincia</h2>
+                    <div id="productsGrid" class="products-grid">
+                        </div>
+                </section>
+
+                <aside class="cart-sidebar">
+                    <div class="cart-container">
+                        <h2 class="cart-title">Tu Carrito (<span id="cartItemCount">0</span>)</h2>
+                        
+                        <div class="delivery-notice">
+                            <span class="icon-location">📍</span>
+                            <div>
+                                <p class="delivery-title">¿Dónde quieres pedir?</p>
+                                <p class="delivery-subtitle">Ingresa tu dirección</p>
+                            </div>
+                        </div>
+
+                        <div id="cartItems" class="cart-items">
+                            </div>
+
+                        <div id="cartFooter" class="cart-footer" style="display: none;">
+                            <div class="cart-subtotal">
+                                <span>Subtotal</span>
+                                <span id="subtotalAmount">$0.00</span>
+                            </div>
+
+                            <button class="btn-primary btn-address">
+                                Ingresa tu dirección o selecciona un local para continuar
+                            </button>
+
+                            <button onclick="checkout()" class="btn-secondary">
+                                Continuar
+                            </button>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

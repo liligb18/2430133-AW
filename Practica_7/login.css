@@ -1,0 +1,224 @@
+/* Paleta de Colores Pastel:
+   - Fondo (body): #F8F4E3 (Crema muy claro)
+   - Contenedor: #FFFFFF (Blanco, limpio)
+   - Botón Primario: #B5EAD7 (Menta Suave)
+   - Botón Secundario: #FFDDE2 (Rosa Pálido)
+   - Texto/Bordes: #707A89 (Gris suave)
+*/
+
+:root {
+    --color-body-bg: #F8F4E3;
+    --color-primary: #B5EAD7;
+    --color-secondary: #FFDDE2;
+    --color-text: #707A89;
+    --color-accent: #C7CEEA; /* Lavanda Suave */
+}
+
+/* Estilos Globales y de Tipografía */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Quicksand', sans-serif;
+    background-color: var(--color-body-bg);
+    color: var(--color-text);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+h1 {
+    font-weight: 700;
+    color: var(--color-accent);
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 2.5em;
+}
+
+h2 {
+    font-weight: 500;
+    margin-bottom: 25px;
+    color: var(--color-text);
+    font-size: 1.8em;
+}
+
+/* Contenedor Principal */
+.container {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+}
+
+/* Estilos de Formulario */
+.form {
+    display: none; /* Oculto por defecto, JS lo mostrará */
+    transition: opacity 0.4s ease;
+}
+
+.form.active {
+    display: block;
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    font-size: 0.95em;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #E0E0E0; /* Borde gris muy claro */
+    border-radius: 8px;
+    font-size: 1em;
+    transition: border-color 0.3s;
+}
+
+.input-group input:focus {
+    border-color: var(--color-primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(181, 234, 215, 0.5); /* Sombra suave al enfocar */
+}
+
+/* Estilos de Botones Pastel */
+.pastel-button {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+    margin-top: 10px;
+}
+
+.pastel-button.primary {
+    background-color: var(--color-primary);
+    color: var(--color-text); /* Texto oscuro para contraste */
+}
+
+.pastel-button.primary:hover {
+    background-color: #9cd6c1; /* Tono ligeramente más oscuro */
+}
+
+.pastel-button.secondary {
+    background-color: var(--color-secondary);
+    color: var(--color-text);
+}
+
+.pastel-button.secondary:hover {
+    background-color: #f7c9d0; /* Tono ligeramente más oscuro */
+}
+
+.pastel-button:active {
+    transform: scale(0.99);
+}
+
+/* Enlaces de Cambio de Formulario */
+p {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.9em;
+}
+
+p a {
+    color: var(--color-accent);
+    text-decoration: none;
+    font-weight: 700;
+    transition: color 0.3s;
+}
+
+p a:hover {
+    color: #9aa1d3;
+}
+
+
+/* --- Estilos del Modal de Éxito --- */
+
+.modal {
+    display: none; /* Oculto por defecto, JS lo mostrará con 'flex' */
+    position: fixed;
+    z-index: 10;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4); /* Oscurece el fondo */
+    backdrop-filter: blur(3px); /* Efecto de desenfoque */
+    display: flex; /* Usado por JS para mostrarlo */
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    width: 90%;
+    max-width: 350px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-icon {
+    font-size: 3em;
+    color: var(--color-primary); /* Color Menta Pastel */
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.modal-content h3 {
+    color: var(--color-text);
+    margin-bottom: 10px;
+}
+
+.modal-content p {
+    margin-bottom: 25px;
+    font-size: 1em;
+}
+
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: var(--color-accent);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Ajuste del botón para el modal */
+#modal-ok-button {
+    width: 60%;
+    padding: 10px;
+}

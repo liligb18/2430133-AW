@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practica_Futbol</title>
+</head>
+<body>
+    <h1>Registro</h1>
+    
+    <form action="#" method="POST"> 
+        
+        <label for="nombres">Nombres:</label><br>
+        <input type="text" id="nombres" name="nombres" required>
+        <br><br>
+
+        <label for="apellidos">Apellidos:</label><br>
+        <input type="text" id="apellidos" name="apellidos" required>
+        <br><br>
+
+        <div>
+            <label for="sexo">Sexo:</label><br>
+            <select id="sexo" name="sexo" required>
+                <option value="">Seleccione su sexo</option>
+                <option value="femenino">Femenino</option>
+                <option value="masculino">Masculino</option>
+            </select>
+        </div>
+        <br><br>
+
+        <label for="telefono">Número de teléfono:</label><br>
+        <input type="tel" id="telefono" name="telefono">
+        <br><br>
+
+        <label for="correo">Correo Electrónico:</label><br>
+        <input type="email" id="correo" name="correo" required>
+        <br><br>
+
+        <div>
+            <label for="equipo">Equipos:</label><br>
+            <select id="equipo" name="equipo" required>
+                <option value="">Seleccione el equipo al que pertenece</option>
+                <option value="upv">UPV</option>
+                <option value="uat">UAT</option>
+                <option value="tec">TEC</option>
+            </select>
+        </div>
+        <br><br>
+
+        <label for="dorsal">Número de dorsal:</label><br>
+        <input type="number" id="dorsal" name="dorsal" min="1" max="99"> <br><br>
+
+        <button type="submit">Registrarse</button> 
+        </form>
+    
+    <p id="guardar"></p>
+
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="css.css">
+</head>
+<body>
+
+    <div class="container">
+        
+        <div id="login-view">
+            <h2>Iniciar sesion</h2>
+            <input type="email" id="loginEmail" placeholder="Correo Electrónico" required>
+            <input type="password" id="loginPassword" placeholder="Contraseña" required>
+            <button onclick="login()">Iniciar Sesión</button>
+            <span class="switch-link" onclick="showRegister()">Regístrate.</span>
+            <div id="loginMessage" class="message error"></div>
+        </div>
+
+        <div id="register-view" style="display:none;">
+            <h2>Registrarse</h2>
+            <input type="email" id="registerEmail" placeholder="Correo Electrónico" required>
+            <input type="password" id="registerPassword" placeholder="Contraseña" required>
+            <button onclick="register()">Registrarme</button>
+            <span class="switch-link" onclick="showLogin()">Inicia sesión.</span>
+            <div id="registerMessage" class="message error"></div>
+        </div>
+
+        <div id="welcome-view" style="display:none;">
+            <h2 id="welcomeMessage"></h2>
+            <button onclick="logout()">Cerrar Sesión</button>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>

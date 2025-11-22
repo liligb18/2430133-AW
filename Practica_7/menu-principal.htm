@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú Principal - Proyecto Pastel</title>
+    <link rel="stylesheet" href="menu-principal.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="menu-container">
+        <header class="welcome-header">
+            <h1 id="welcome-message">Bienvenido(a) a la Plataforma Pastel</h1>
+            <p>Selecciona una opción para comenzar tu trabajo.</p>
+        </header>
+
+        <nav class="menu-grid">
+            
+            <a href="gestor-usuarios.html" class="menu-item users">
+                <span class="icon">&#128100;</span>
+                <h3>Gestor de Usuarios</h3>
+                <p>Editar o eliminar la información de los usuarios.</p>
+            </a>
+
+            <a href="proyectos.html" class="menu-item projects">
+                <span class="icon">&#128193;</span>
+                <h3>Proyectos</h3>
+                <p>Administra las tareas y los proyectos en curso.</p>
+            </a>
+
+            <a href="notas.html" class="menu-item notes">
+                <span class="icon">&#9999;</span>
+                <h3>Notas Rápidas</h3>
+                <p>Crea recordatorios y apuntes importantes.</p>
+            </a>
+
+            <a href="perfil.html" class="menu-item profile">
+                <span class="icon">&#128100;</span>
+                <h3>Mi Perfil</h3>
+                <p>Modifica tu información personal y contraseña.</p>
+            </a>
+
+        </nav>
+
+        <button id="logout-button" class="pastel-button logout-button">Cerrar Sesión</button>
+    </div>
+    
+    <script src="menu-principal.js"></script>
+</body>
+</html>

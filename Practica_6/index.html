@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Proyectos Colaborativo (Kanban)</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        
+        <div id="login-view">
+            <h2>Iniciar Sesión</h2>
+            <input type="email" id="loginEmail" placeholder="Correo Electrónico" required>
+            <input type="password" id="loginPassword" placeholder="Contraseña" required>
+            <button onclick="login()">Iniciar Sesión</button>
+            <span class="switch-link" onclick="showRegister()">¿No tienes cuenta? Regístrate aquí.</span>
+            <div id="loginMessage" class="message error"></div>
+        </div>
+
+        <div id="register-view" style="display:none;">
+            <h2>Registrarse</h2>
+            <input type="email" id="registerEmail" placeholder="Correo Electrónico" required>
+            <input type="password" id="registerPassword" placeholder="Contraseña" required>
+            <button onclick="register()">Registrarme</button>
+            <span class="switch-link" onclick="showLogin()">¿Ya tienes cuenta? Inicia sesión.</span>
+            <div id="registerMessage" class="message error"></div>
+        </div>
+
+        <div id="welcome-view" style="display:none;">
+            
+            <div class="header-area">
+                <h2 id="welcomeMessage" class="welcome-header"></h2>
+                <button onclick="logout()" class="logout-btn">Cerrar Sesión</button>
+            </div>
+            
+            <hr>
+            
+            <div id="dashboard-content">
+                
+                <div id="list-projects-view">
+                    <h3>Mis Proyectos</h3>
+                    <button onclick="showCreateProject()" class="add-task-btn">Crear Nuevo Proyecto</button>
+                    <div id="projectList">
+                        <p class="no-items">Crea tu primer proyecto.</p>
+                    </div>
+                </div>
+
+                <div id="create-project-view" style="display:none;">
+                    <h3 id="projectFormTitle">Crear Nuevo Proyecto</h3>
+                    <input type="text" id="projectName" placeholder="Nombre del Proyecto" required>
+                    
+                    <label for="projectStatus">Estado:</label>
+                    <select id="projectStatus" required>
+                        <option value="En Espera">En Espera</option>
+                        <option value="En Proceso">En Proceso</option>
+                        <option value="Terminado">Terminado</option>
+                    </select>
+
+                    <label for="projectStartDate">Fecha de Inicio:</label>
+                    <input type="date" id="projectStartDate" required>
+                    
+                    <label for="projectEndDate">Fecha de Fin Estimada:</label>
+                    <input type="date" id="projectEndDate" required>
+                    
+                    <button onclick="saveProject()" id="saveProjectBtn" class="add-task-btn">Guardar Proyecto</button>
+                    <span class="switch-link" onclick="showProjectsList()">Volver a la lista de proyectos</span>
+                </div>
+
+                <div id="project-tasks-view" style="display:none;">
+                    <h3 id="currentProjectTitle"></h3>
+                    
+                    <button onclick="showCreateTaskForm()" class="add-task-btn" style="width: auto; margin-right: 10px;">+ Crear Tarea</button>
+                    <span class="switch-link" onclick="showProjectsList()" style="display: inline-block;">← Volver a Mis Proyectos</span>
+                    
+                    <hr>
+                    
+                    <div id="create-task-form" style="display:none; border: 1px solid #ccc; padding: 15px; border-radius: 8px; margin-bottom: 20px; background-color: #f8f8f8;">
+                        <h4>Nueva Tarea</h4>
+                        <input type="text" id="taskTitle" placeholder="Título" required>
+                        <textarea id="taskDescription" placeholder="Descripción"></textarea>
+                        
+                        <label for="taskPriority">Prioridad:</label>
+                        <select id="taskPriority" required>
+                            <option value="Baja">Baja</option>
+                            <option value="Media">Media</option>
+                            <option value="Alta">Alta</option>
+                        </select>
+                        
+                        <label for="taskDueDate">Vencimiento:</label>
+                        <input type="date" id="taskDueDate" required>
+                        
+                        <label for="taskAssignedTo">Asignar a:</label>
+                        <input type="email" id="taskAssignedTo" placeholder="Correo de usuario" required>
+                        
+                        <button onclick="addTask()" id="saveTaskBtn" class="add-task-btn">Guardar Tarea</button>
+                        <span class="switch-link" onclick="hideCreateTaskForm()">Cancelar</span>
+                    </div>
+
+                    <div class="kanban-board">
+                        
+                        <div class="kanban-column" data-status="pendiente">
+                            <h4>Pendiente</h4>
+                            <ul id="lista-pendiente" class="task-list"></ul>
+                        </div>
+                        
+                        <div class="kanban-column" data-status="en_proceso">
+                            <h4>En Proceso</h4>
+                            <ul id="lista-en_proceso" class="task-list"></ul>
+                        </div>
+                        
+                        <div class="kanban-column" data-status="hecha">
+                            <h4>Hecha</h4>
+                            <ul id="lista-hecha" class="task-list"></ul>
+                        </div>
+                        
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

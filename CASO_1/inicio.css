@@ -1,0 +1,116 @@
+/* Contenedor central para centrar botones y logo */
+.central-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  margin-top: 1.5rem;
+}
+
+.botones-box {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+body {
+  background:
+    linear-gradient(rgba(80,0,120,0.7), rgba(80,0,120,0.7)),
+    url('images/UPV.webp') center center/cover no-repeat;
+  color: white;
+  font-family: T, Helvetica, sans-serif;
+  min-height: 100vh;
+  margin: 0;
+  gap: 0.5rem;
+}
+
+.main-container {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* El fondo sigue siendo del body, así que el div es transparente */
+  background: transparent;
+}
+
+/* Estilos para los botones llamativos */
+button#boton {
+  font-size: 2rem;
+  padding: 1.1rem 0;
+  margin: 0;
+  border: none;
+  border-radius: 1.5rem;
+  background: linear-gradient(90deg, #360953, #a259c6 80%);
+  color: white;
+  box-shadow: 0 4px 18px rgba(80,0,120,0.25);
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-weight: 600;
+  letter-spacing: 1px;
+  transition: transform 0.15s, box-shadow 0.15s;
+  cursor: pointer;
+  width: 320px;
+  min-width: 220px;
+  max-width: 400px;
+  text-align: center;
+  display: block;
+}
+button#boton:hover {
+  transform: scale(1.07);
+  box-shadow: 0 8px 24px rgba(80,0,120,0.35);
+  background: linear-gradient(90deg, #661992, #a259c6 80%);
+}
+
+.header-box {
+  background: rgba(40, 0, 60, 0.55);
+  border-radius: 1.5rem;
+  box-shadow: 0 6px 32px rgba(80,0,120,0.18);
+  padding: 2.2rem 2.5rem 1.5rem 2.5rem;
+  margin: 2.5rem auto 1.5rem auto;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 2px solid rgba(162,89,198,0.25);
+}
+
+#frase {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: auto;
+  margin: 0.2rem 0;
+  text-align: center;
+  font-size: 3.2rem;
+  font-family: 'Segoe UI', 'Arial Rounded MT Bold', Arial, sans-serif;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 2px 4px 18px #360953, 0 1px 0 #fff;
+  letter-spacing: 2px;
+  background: linear-gradient(90deg, #fff 0%, #a259c6 40%, #661992 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+h2#frase {
+  font-size: 2rem;
+  font-weight: 500;
+  margin: 0.5rem 0 0.5rem 0;
+  text-shadow: 1px 2px 10px #360953, 0 1px 0 #fff;
+  background: none;
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+}
+
+#logo {
+  width: 220px;
+  height: auto;
+  margin-top: 0;
+  margin-bottom: 0;
+  border: 3px solid #fff;
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 24px rgba(80,0,120,0.25);
+}

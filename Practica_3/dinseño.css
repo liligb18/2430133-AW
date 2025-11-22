@@ -1,0 +1,50 @@
+/* Estilos generales */
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Encabezado */
+.container h2 {
+    color: #0d6efd; /* Color azul primario de Bootstrap */
+    font-weight: 600;
+}
+
+/* Formulario */
+.card {
+    border: none;
+    border-radius: 10px;
+}
+
+/* Estilo para el botón de Guardar */
+.btn-success {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+/* Buscador */
+#buscar {
+    border-radius: 5px;
+}
+
+/* Tabla */
+.table {
+    margin-top: 15px;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 10px;
+    overflow: hidden; /* Importante para que los bordes redondeados funcionen */
+}
+
+/* Cabecera de la tabla */
+.table-dark th {
+    background-color: #343a40;
+    color: white;
+    text-transform: uppercase;
+}
+
+/* Botones de acción en la tabla */
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+}
