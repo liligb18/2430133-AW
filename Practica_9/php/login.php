@@ -7,13 +7,7 @@ error_reporting(E_ALL);
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/security.php';
 
-// Asegurar cookies de sesión (httponly, secure si HTTPS, SameSite=Lax)
-session_set_cookie_params([
-    'httponly' => true,
-    'secure' => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'),
-    'samesite' => 'Lax'
-]);
-session_start();
+
 
 try {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

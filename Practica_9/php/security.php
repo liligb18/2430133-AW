@@ -1,5 +1,12 @@
 <?php
 // php/security.php - CSRF helpers and simple brute-force protection
+// Asegurar cookies de sesión (httponly, secure si HTTPS, SameSite=Lax)
+session_set_cookie_params([
+    'httponly' => true,
+    'secure' => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'),
+    'samesite' => 'Lax'
+]);
+
 if (session_status() === PHP_SESSION_NONE) session_start();
 
 function generate_csrf_token() {
