@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Médicos</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .dias-semana-group { display: flex; gap: 0.5rem; justify-content: space-between; margin-top: 0.5rem; }
+        .dias-semana-group label {
+            cursor: pointer; padding: 0.5rem; border: 1px solid var(--color-borde); border-radius: 8px; text-align: center;
+            flex-grow: 1; transition: all 0.2s ease; user-select: none;
+        }
+        .dias-semana-group input[type="checkbox"] { display: none; }
+        .dias-semana-group input[type="checkbox"]:checked + label {
+            background-color: var(--color-primario); color: white; border-color: var(--color-primario);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fas fa-heartbeat"></i> Clínica UPV</h3>
+            </div>
+            <ul class="sidebar-menu">
+                <li id="menu-dashboard"><a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li id="menu-usuarios"><a href="usuarios.html"><i class="fas fa-users-cog"></i> Usuarios</a></li>
+                <li id="menu-pacientes"><a href="pacientes.html"><i class="fas fa-users"></i> Pacientes</a></li>
+                <li id="menu-agenda"><a href="agenda.html"><i class="fas fa-calendar-alt"></i> Agenda</a></li>
+                <li id="menu-medicos" class="active"><a href="medicos.html"><i class="fas fa-user-md"></i> Médicos</a></li>
+                <li id="menu-pagos"><a href="pagos.html"><i class="fas fa-file-invoice-dollar"></i> Pagos</a></li>
+                <li id="menu-reportes"><a href="reportes.html"><i class="fas fa-chart-bar"></i> Reportes</a></li>
+                <li id="menu-tarifas"><a href="tarifas.html"><i class="fas fa-tags"></i> Tarifas</a></li>
+                <li id="menu-especialidades"><a href="especialidades.html"><i class="fas fa-stethoscope"></i> Especialidades</a></li>
+                <li id="menu-bitacoras"><a href="bitacoras.html"><i class="fas fa-clipboard-list"></i> Bitácoras</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <a href="#" id="logout-button"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <header class="main-header">
+                <h2>Control de Médicos</h2>
+                <p>Gestión de personal médico y sus especialidades.</p>
+            </header>
+
+            <div class="content-wrapper">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                    <button class="btn btn-primary" id="btn-nuevo-medico">
+                        <i class="fas fa-plus"></i> Nuevo Médico
+                    </button>
+                    <div class="search-bar-container" style="flex-grow: 1; max-width: 400px;">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="search-bar" placeholder="Buscar por nombre, cédula o especialidad...">
+                    </div>
+                </div>
+
+                <div class="form-container" id="form-container-medico">
+                    <form id="form-medico">
+                        <input type="hidden" id="medico-id">
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="nombre-medico">Nombre Completo</label>
+                                <input type="text" id="nombre-medico" required maxlength="150" autocomplete="name">
+                            </div>
+                            <div class="form-group">
+                                <label for="cedula">Cédula Profesional</label>
+                                <input type="text" id="cedula" required maxlength="50">
+                            </div>
+                            <div class="form-group">
+                                <label for="especialidad">Especialidad</label>
+                                <select id="especialidad" required>
+                                    <option value="">Cargando...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="telefono-medico">Teléfono</label>
+                                <input type="tel" id="telefono-medico" pattern="\d{10}" maxlength="10" inputmode="numeric" title="10 dígitos numéricos">
+                            </div>
+                            <div class="form-group">
+                                <label for="email-medico">Correo Electrónico</label>
+                                <input type="email" id="email-medico" maxlength="150" autocomplete="email">
+                            </div>
+                            
+                            <div class="form-group full-width">
+                                <label>Días de Trabajo (Seleccione al menos uno)</label>
+                                <div class="dias-semana-group" id="dias-semana-inputs">
+                                    <input type="checkbox" id="dia-L" value="L"><label for="dia-L">Lun</label>
+                                    <input type="checkbox" id="dia-M" value="M"><label for="dia-M">Mar</label>
+                                    <input type="checkbox" id="dia-X" value="X"><label for="dia-X">Mié</label>
+                                    <input type="checkbox" id="dia-J" value="J"><label for="dia-J">Jue</label>
+                                    <input type="checkbox" id="dia-V" value="V"><label for="dia-V">Vie</label>
+                                    <input type="checkbox" id="dia-S" value="S"><label for="dia-S">Sáb</label>
+                                    <input type="checkbox" id="dia-D" value="D"><label for="dia-D">Dom</label>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="hora-entrada">Hora de Entrada</label>
+                                <input type="time" id="hora-entrada" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="hora-salida">Hora de Salida</label>
+                                <input type="time" id="hora-salida" required>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-secondary" id="btn-cancelar">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Guardar Médico</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h3>Médicos Registrados</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Cédula</th>
+                                    <th>Especialidad</th>
+                                    <th>Teléfono</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-medicos-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="js/validaciones.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/medicos.js"></script>
+</body>
+</html>

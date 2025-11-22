@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .printable-area, .printable-area * {
+                visibility: visible;
+            }
+            .printable-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            .app-container, .main-content {
+                display: block;
+                padding: 0;
+            }
+            .card {
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+            table {
+                font-size: 10pt;
+            }
+            table th, table td {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fas fa-heartbeat"></i> Clínica UPV</h3>
+            </div>
+            <ul class="sidebar-menu">
+                <li id="menu-dashboard"><a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li id="menu-usuarios"><a href="usuarios.html"><i class="fas fa-users-cog"></i> Usuarios</a></li>
+                <li id="menu-pacientes"><a href="pacientes.html"><i class="fas fa-users"></i> Pacientes</a></li>
+                <li id="menu-agenda"><a href="agenda.html"><i class="fas fa-calendar-alt"></i> Agenda</a></li>
+                <li id="menu-medicos"><a href="medicos.html"><i class="fas fa-user-md"></i> Médicos</a></li>
+                <li id="menu-pagos"><a href="pagos.html"><i class="fas fa-file-invoice-dollar"></i> Pagos</a></li>
+                <li id="menu-reportes"><a href="reportes.html"><i class="fas fa-chart-bar"></i> Reportes</a></li>
+                <li id="menu-tarifas"><a href="tarifas.html"><i class="fas fa-tags"></i> Tarifas</a></li>
+                <li id="menu-especialidades"><a href="especialidades.html"><i class="fas fa-stethoscope"></i> Especialidades</a></li>
+                <li id="menu-bitacoras"><a href="bitacoras.html"><i class="fas fa-clipboard-list"></i> Bitácoras</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <a href="#" id="logout-button"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <header class="main-header">
+                <h2>Módulo de Reportes</h2>
+                <p>Resúmenes y reportes del sistema.</p>
+            </header>
+
+            <div class="content-wrapper">
+
+                <div class="card">
+                    <h3>Resumen Financiero</h3>
+                    <div class="card-deck">
+                        <div class="card small-card">
+                            <h4>Total Recaudado (Pagado)</h4>
+                            <span class="stat-number" id="reporte-total-recaudado">$0.00</span>
+                        </div>
+                        <div class="card small-card">
+                            <h4>Consultas Pagadas</h4>
+                            <span class="stat-number" id="reporte-consultas-pagadas">0</span>
+                        </div>
+                        <div class="card small-card">
+                            <h4>Pagos Pendientes</h4>
+                            <span class="stat-number" id="reporte-pagos-pendientes">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Reporte de Citas por Médico</h3>
+                    <div class="form-grid" style="grid-template-columns: 1fr auto auto;">
+                        <div class="form-group">
+                            <label for="medico-reporte-select">Seleccione un Médico</label>
+                            <select id="medico-reporte-select">
+                                <option value="">Cargando médicos...</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="justify-content: flex-end;">
+                            <button class="btn btn-primary" id="btn-generar-reporte"><i class="fas fa-sync"></i> Generar</button>
+                        </div>
+                        <div class="form-group" style="justify-content: flex-end;">
+                            <button class="btn btn-secondary" id="btn-imprimir-reporte"><i class="fas fa-print"></i> Imprimir</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="printable-area">
+                    <div class="card" id="card-reporte-medico" style="display: none;">
+                        <h3 id="titulo-reporte-medico">Reporte de Citas</h3>
+                        <div class="table-container">
+                            <table id="tabla-reporte-medico">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Paciente</th>
+                                        <th>Estatus Cita</th>
+                                        <th>Estatus Pago</th>
+                                        <th>Monto Pagado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/reportes.js"></script>
+</body>
+</html>
