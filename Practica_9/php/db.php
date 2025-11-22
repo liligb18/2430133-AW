@@ -18,9 +18,10 @@ function getPDO() {
     try {
         return new PDO($dsn, $user, $pass, $options);
     } catch (PDOException $e) {
-        // Para producción, no muestres detalles sensibles. Aquí imprimimos para desarrollo local.
+        // No mostrar detalles sensibles al usuario. Registrar el error y devolver mensaje genérico.
+        @error_log('[' . date('Y-m-d H:i:s') . '] DB connection error: ' . $e->getMessage() . "\n", 3, sys_get_temp_dir() . '/db_error.log');
         http_response_code(500);
-        echo 'Error de conexión a la base de datos: ' . htmlspecialchars($e->getMessage());
+        echo 'Error de conexión a la base de datos. Intente nuevamente más tarde.';
         exit;
     }
 }

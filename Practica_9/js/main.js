@@ -65,6 +65,43 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     gestionarVisibilidadMenu(userRole);
+
+    // --- 4. Restricciones de fecha/hora en inputs (para evitar fechas futuras/pasadas por cliente) ---
+    const setDateTimeConstraints = () => {
+        const now = new Date();
+        const todayDate = now.toISOString().split('T')[0];
+        document.querySelectorAll('input[type="date"]').forEach(i => i.max = todayDate);
+
+        // Para datetime-local, establecer mínimo a ahora (redondeado al minuto)
+        document.querySelectorAll('input[type="datetime-local"]').forEach(i => {
+            const pad = (n) => String(n).padStart(2, '0');
+            const y = now.getFullYear();
+            const m = pad(now.getMonth() + 1);
+            const d = pad(now.getDate());
+            const hh = pad(now.getHours());
+            const mm = pad(now.getMinutes());
+            i.min = `${y}-${m}-${d}T${hh}:${mm}`;
+        });
+    };
+    setDateTimeConstraints();
+    // --- 5. CSRF token loader para AJAX ---
+    // Proporciona window.getCsrfToken() que devuelve una promesa resuelta con el token (o null)
+    (function(){
+        window._csrfPromise = null;
+        window.getCsrfToken = function() {
+            if (window._csrfPromise) return window._csrfPromise;
+            const authHeaders = () => ({ 'X-Local-Auth': (localStorage.getItem('isAuthenticated') === 'true') ? '1' : '0', 'X-User-Role': localStorage.getItem('userRole') || '' });
+            window._csrfPromise = fetch('php/api/csrf.php', { method: 'GET', credentials: 'same-origin', headers: authHeaders() })
+                .then(res => res.json())
+                .then(json => json && json.success ? json.csrf_token : null)
+                .catch(() => null);
+            // Propagar el token a window.CSRF_TOKEN cuando esté disponible
+            window._csrfPromise.then(t => { window.CSRF_TOKEN = t; });
+            return window._csrfPromise;
+        };
+        // Iniciar la carga en background
+        window.getCsrfToken();
+    })();
 });
 
 

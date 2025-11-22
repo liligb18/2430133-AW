@@ -8,8 +8,26 @@
          * @param {string} mensaje -
          */
         mostrarError: (mensaje) => {
-            alert(mensaje);
-            // Lanza un error para detener la ejecución de la función que lo llamó
+            // Mostrar un toast de validación (sin bloquear la UI con alert)
+            try {
+                let toast = document.getElementById('validation-toast');
+                if (toast) {
+                    toast.textContent = mensaje;
+                    toast.style.display = 'block';
+                } else {
+                    toast = document.createElement('div');
+                    toast.id = 'validation-toast';
+                    toast.setAttribute('role', 'alert');
+                    toast.style.cssText = 'position:fixed;top:1rem;right:1rem;background:#f44336;color:#fff;padding:0.75rem 1rem;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,0.2);z-index:9999;font-family:Arial,Helvetica,sans-serif;';
+                    toast.textContent = mensaje;
+                    document.body.appendChild(toast);
+                }
+                if (window.__validationToastTimeout) clearTimeout(window.__validationToastTimeout);
+                window.__validationToastTimeout = setTimeout(() => { try { toast.style.display = 'none'; } catch (e) {} }, 4500);
+            } catch (e) {
+                // ignore DOM errors
+            }
+            // Lanza un error para mantener la lógica actual (try/catch en los formularios)
             throw new Error(mensaje);
         },
 

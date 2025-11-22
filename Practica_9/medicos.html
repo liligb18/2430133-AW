@@ -65,11 +65,11 @@
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="nombre-medico">Nombre Completo</label>
-                                <input type="text" id="nombre-medico" required>
+                                <input type="text" id="nombre-medico" required maxlength="150" autocomplete="name">
                             </div>
                             <div class="form-group">
                                 <label for="cedula">Cédula Profesional</label>
-                                <input type="text" id="cedula" required>
+                                <input type="text" id="cedula" required maxlength="50">
                             </div>
                             <div class="form-group">
                                 <label for="especialidad">Especialidad</label>
@@ -79,11 +79,11 @@
                             </div>
                             <div class="form-group">
                                 <label for="telefono-medico">Teléfono</label>
-                                <input type="tel" id="telefono-medico">
+                                <input type="tel" id="telefono-medico" pattern="\d{10}" maxlength="10" inputmode="numeric" title="10 dígitos numéricos">
                             </div>
                             <div class="form-group">
                                 <label for="email-medico">Correo Electrónico</label>
-                                <input type="email" id="email-medico">
+                                <input type="email" id="email-medico" maxlength="150" autocomplete="email">
                             </div>
                             
                             <div class="form-group full-width">

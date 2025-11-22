@@ -1,36 +1,37 @@
 <?php
 // php/api/medicos.php
-header('Content-Type: application/json; charset=utf-8');
-require_once __DIR__ . '/../db.php';
-
+require_once __DIR__ . '/common.php';
 $pdo = getPDO();
-$action = $_SERVER['REQUEST_METHOD'] === 'GET' ? 'list' : (isset($_POST['action']) ? $_POST['action'] : null);
+$method = $_SERVER['REQUEST_METHOD'];
+$action = $method === 'GET' ? 'list' : ($_POST['action'] ?? null);
 
 try {
+    // Requerir autenticación para todas las operaciones
+    requireAuth();
+
     if ($action === 'list') {
         $stmt = $pdo->query('SELECT cm.IdMedico, cm.NombreCompleto, cm.CedulaProfesional, cm.EspecialidadId, cm.Telefono, cm.CorreoElectronico, cm.HorarioAtencion FROM controlmedico cm');
         $medicos = [];
         while ($row = $stmt->fetch()) {
-            // obtener nombre de especialidad
             $espName = null;
-            if ($row['EspecialidadId']) {
+            if (!empty($row['EspecialidadId'])) {
                 $s = $pdo->prepare('SELECT NombreEspecialidad FROM especialidades WHERE IdEspecialidad = :id LIMIT 1');
-                $s->execute(['id' => $row['EspecialidadId']]);
+                $s->execute(['id' => (int)$row['EspecialidadId']]);
                 $esp = $s->fetch();
-                $espName = $esp ? $esp['NombreEspecialidad'] : null;
+                $espName = $esp ? cleanString($esp['NombreEspecialidad'],100) : null;
             }
             $horario = null;
-            if ($row['HorarioAtencion']) {
+            if (!empty($row['HorarioAtencion'])) {
                 $decoded = json_decode($row['HorarioAtencion'], true);
-                $horario = $decoded !== null ? $decoded : ['raw' => $row['HorarioAtencion']];
+                $horario = $decoded !== null ? $decoded : ['raw' => cleanString($row['HorarioAtencion'],1000)];
             }
             $medicos[] = [
-                'id' => $row['IdMedico'],
-                'nombre' => $row['NombreCompleto'],
-                'cedula' => $row['CedulaProfesional'],
+                'id' => (int)$row['IdMedico'],
+                'nombre' => cleanString($row['NombreCompleto'],150),
+                'cedula' => cleanString($row['CedulaProfesional'],50),
                 'especialidad' => $espName,
-                'telefono' => $row['Telefono'],
-                'email' => $row['CorreoElectronico'],
+                'telefono' => cleanString($row['Telefono'],20),
+                'email' => cleanString($row['CorreoElectronico'],150),
                 'horario' => $horario
             ];
         }
@@ -38,30 +39,32 @@ try {
         exit;
     }
 
-    // Para POST actions: create, update, delete
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        http_response_code(405);
-        echo json_encode(['success' => false, 'message' => 'Método no permitido']);
-        exit;
-    }
+    if ($method !== 'POST') { http_response_code(405); echo json_encode(['success'=>false,'message'=>'Método no permitido']); exit; }
 
     $action = $_POST['action'] ?? '';
-
     if ($action === 'create') {
-        $nombre = $_POST['nombre'] ?? '';
-        $cedula = $_POST['cedula'] ?? '';
-        $especialidad = $_POST['especialidad'] ?? null; // nombre de especialidad
-        $telefono = $_POST['telefono'] ?? null;
-        $email = $_POST['email'] ?? null;
-        $horario = $_POST['horario'] ?? null; // JSON string
+        // Solo Admin puede crear médicos
+        requireAuth(['Admin']);
+        $nombre = cleanString($_POST['nombre'] ?? '',150);
+        $cedula = cleanString($_POST['cedula'] ?? '',50);
+        $especialidad = cleanString($_POST['especialidad'] ?? '',100);
+        $telefono = cleanString($_POST['telefono'] ?? '',20);
+        $email = cleanString($_POST['email'] ?? '',150);
+        $horarioRaw = $_POST['horario'] ?? null;
 
-        // buscar id de especialidad
         $espId = null;
-        if ($especialidad) {
+        if ($especialidad !== '') {
             $s = $pdo->prepare('SELECT IdEspecialidad FROM especialidades WHERE NombreEspecialidad = :nombre LIMIT 1');
             $s->execute(['nombre' => $especialidad]);
             $r = $s->fetch();
-            if ($r) $espId = $r['IdEspecialidad'];
+            if ($r) $espId = (int)$r['IdEspecialidad'];
+        }
+
+        // Validar horario JSON
+        $horario = null;
+        if ($horarioRaw) {
+            $decoded = json_decode($horarioRaw, true);
+            if (is_array($decoded)) $horario = json_encode($decoded); // normalize
         }
 
         $stmt = $pdo->prepare('INSERT INTO controlmedico (NombreCompleto, CedulaProfesional, EspecialidadId, Telefono, CorreoElectronico, HorarioAtencion) VALUES (:nombre, :cedula, :esp, :telefono, :email, :horario)');
@@ -69,42 +72,50 @@ try {
             'nombre' => $nombre,
             'cedula' => $cedula,
             'esp' => $espId,
-            'telefono' => $telefono,
-            'email' => $email,
-            'horario' => $horario ? $horario : null
+            'telefono' => $telefono ?: null,
+            'email' => $email ?: null,
+            'horario' => $horario
         ]);
         echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
         exit;
     }
 
     if ($action === 'update') {
-        $id = $_POST['id'] ?? null;
+        // Solo Admin puede actualizar médicos
+        requireAuth(['Admin']);
+        $id = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
         if (!$id) { echo json_encode(['success'=>false,'message'=>'ID requerido']); exit; }
-        $nombre = $_POST['nombre'] ?? '';
-        $cedula = $_POST['cedula'] ?? '';
-        $especialidad = $_POST['especialidad'] ?? null;
-        $telefono = $_POST['telefono'] ?? null;
-        $email = $_POST['email'] ?? null;
-        $horario = $_POST['horario'] ?? null;
+        $nombre = cleanString($_POST['nombre'] ?? '',150);
+        $cedula = cleanString($_POST['cedula'] ?? '',50);
+        $especialidad = cleanString($_POST['especialidad'] ?? '',100);
+        $telefono = cleanString($_POST['telefono'] ?? '',20);
+        $email = cleanString($_POST['email'] ?? '',150);
+        $horarioRaw = $_POST['horario'] ?? null;
 
         $espId = null;
-        if ($especialidad) {
+        if ($especialidad !== '') {
             $s = $pdo->prepare('SELECT IdEspecialidad FROM especialidades WHERE NombreEspecialidad = :nombre LIMIT 1');
             $s->execute(['nombre' => $especialidad]);
             $r = $s->fetch();
-            if ($r) $espId = $r['IdEspecialidad'];
+            if ($r) $espId = (int)$r['IdEspecialidad'];
+        }
+
+        $horario = null;
+        if ($horarioRaw) {
+            $decoded = json_decode($horarioRaw, true);
+            if (is_array($decoded)) $horario = json_encode($decoded);
         }
 
         $stmt = $pdo->prepare('UPDATE controlmedico SET NombreCompleto = :nombre, CedulaProfesional = :cedula, EspecialidadId = :esp, Telefono = :telefono, CorreoElectronico = :email, HorarioAtencion = :horario WHERE IdMedico = :id');
-        $stmt->execute([
-            'nombre'=>$nombre,'cedula'=>$cedula,'esp'=>$espId,'telefono'=>$telefono,'email'=>$email,'horario'=>$horario,'id'=>$id
-        ]);
+        $stmt->execute(['nombre'=>$nombre,'cedula'=>$cedula,'esp'=>$espId,'telefono'=>$telefono ?: null,'email'=>$email ?: null,'horario'=>$horario,'id'=>$id]);
         echo json_encode(['success' => true]);
         exit;
     }
 
     if ($action === 'delete') {
-        $id = $_POST['id'] ?? null;
+        // Solo Admin puede eliminar médicos
+        requireAuth(['Admin']);
+        $id = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
         if (!$id) { echo json_encode(['success'=>false,'message'=>'ID requerido']); exit; }
         $stmt = $pdo->prepare('DELETE FROM controlmedico WHERE IdMedico = :id');
         $stmt->execute(['id' => $id]);
@@ -114,9 +125,8 @@ try {
 
     echo json_encode(['success' => false, 'message' => 'Acción inválida']);
 
-} catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+} catch (Throwable $e) {
+    apiErrorResponse($e);
 }
 
 ?>

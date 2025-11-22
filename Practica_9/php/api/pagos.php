@@ -1,10 +1,9 @@
 <?php
 // php/api/pagos.php
-header('Content-Type: application/json; charset=utf-8');
-require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/common.php';
 $pdo = getPDO();
-
 try {
+    requireAuth();
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         // Listar pagos existentes
         $stmt = $pdo->query('SELECT g.IdPago, g.IdCita, g.IdPaciente, g.Monto, g.MetodoPago, g.FechaPago, g.Referencia, g.EstatusPago FROM gestorpagos g');
@@ -15,11 +14,13 @@ try {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); echo json_encode(['success'=>false,'message'=>'Método no permitido']); exit; }
     $action = $_POST['action'] ?? '';
     if ($action === 'create') {
-        $idCita = $_POST['idCita'] ?? null;
-        $idPaciente = $_POST['idPaciente'] ?? null;
-        $monto = $_POST['monto'] ?? 0;
-        $metodo = $_POST['metodo'] ?? 'Efectivo';
-        $referencia = $_POST['referencia'] ?? null;
+        $idCita = filter_var($_POST['idCita'] ?? null, FILTER_VALIDATE_INT);
+        $idPaciente = filter_var($_POST['idPaciente'] ?? null, FILTER_VALIDATE_INT);
+        $monto = filter_var($_POST['monto'] ?? 0, FILTER_VALIDATE_FLOAT);
+        $metodo = cleanString($_POST['metodo'] ?? 'Efectivo',50);
+        $referencia = cleanString($_POST['referencia'] ?? null,150);
+
+        if ($monto === false || $monto <= 0) { echo json_encode(['success'=>false,'message'=>'Monto inválido']); exit; }
 
         $stmt = $pdo->prepare('INSERT INTO gestorpagos (IdCita, IdPaciente, Monto, MetodoPago, Referencia, EstatusPago) VALUES (:idcita, :idpac, :monto, :metodo, :ref, :estatus)');
         $stmt->execute(['idcita'=>$idCita,'idpac'=>$idPaciente,'monto'=>$monto,'metodo'=>$metodo,'ref'=>$referencia,'estatus'=>'Pagado']);
@@ -35,9 +36,8 @@ try {
 
     echo json_encode(['success'=>false,'message'=>'Acción inválida']);
 
-} catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['success'=>false,'message'=>$e->getMessage()]);
+} catch (Throwable $e) {
+    apiErrorResponse($e);
 }
 
 ?>

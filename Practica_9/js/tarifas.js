@@ -15,8 +15,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnNuevaTarifa = document.getElementById('btn-nueva-tarifa');
     const btnCancelar = document.getElementById('btn-cancelar');
     const tablaTarifasBody = document.getElementById('tabla-tarifas-body');
-    const postForm = (data) => fetch(API_TARIFAS, { method: 'POST', headers: {'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'}, body: new URLSearchParams(data) }).then(r => r.json());
-    const apiList = () => fetch(API_TARIFAS).then(r => r.json());
+    const authHeaders = () => ({ 'X-Local-Auth': (localStorage.getItem('isAuthenticated') === 'true') ? '1' : '0', 'X-User-Role': localStorage.getItem('userRole') || '' });
+    const postForm = (data) => (async () => {
+        const token = await window.getCsrfToken();
+        const payload = Object.assign({}, data, token ? { csrf_token: token } : {});
+        const headers = Object.assign({ 'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8' }, authHeaders());
+        return fetch(API_TARIFAS, { method: 'POST', headers: headers, body: new URLSearchParams(payload), credentials: 'same-origin' }).then(r => r.json());
+    })();
+    const apiList = () => fetch(API_TARIFAS, { credentials: 'same-origin', headers: authHeaders() }).then(r => r.json());
 
     const renderizarTabla = async () => {
         try {
@@ -71,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.registrarBitacora('Tarifas', id ? 'Actualización' : 'Creación', `Se guardó la tarifa '${nombre}' (Costo: $${costo}).`);
             renderizarTabla();
             ocultarFormulario();
-        } catch (error) { console.warn(error.message); alert(error.message || 'Error'); }
+        } catch (error) { console.warn(error.message); try { Validaciones.mostrarError(error.message || 'Error'); } catch(e) {} }
     };
 
     const handleEditar = async (event) => {
@@ -96,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!res.success) throw new Error(res.message || 'Error');
             window.registrarBitacora('Tarifas', 'Eliminación', `Se eliminó la tarifa '${nombre}'.`);
             renderizarTabla();
-        } catch (e) { console.error(e); alert('Error al eliminar'); }
+        } catch (e) { console.error(e); try { Validaciones.mostrarError(e.message || 'Error al eliminar'); } catch(err) {} }
     };
     const mostrarFormulario = () => {
         formContainer.style.display = 'block';

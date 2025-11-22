@@ -1,9 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- 1. Definición de la "llave" para la BD de usuarios ---
-    const USERS_KEY = 'usuarios_db';
-
-    // --- 2. Obtener referencias a los elementos del DOM ---
+    // --- 1. Obtener referencias a los elementos del DOM ---
     
     // Formularios
     const loginForm = document.getElementById('login-form');
@@ -27,181 +24,97 @@ document.addEventListener('DOMContentLoaded', () => {
     const registerSuccessMessage = document.getElementById('register-success-message');
 
 
-    // --- 3. Funciones Helper para Local Storage ---
-
-    /**
-     * Obtiene todos los usuarios. Crea un 'admin' por defecto si está vacío.
-     */
-    const getUsers = () => {
-        const usersJSON = localStorage.getItem(USERS_KEY);
-        if (!usersJSON) {
-            const adminDefault = [{
-                id: 'user_admin',
-                username: 'admin',
-                password: '1234',
-                rol: 'Admin',
-                medicoId: null
-            }];
-            localStorage.setItem(USERS_KEY, JSON.stringify(adminDefault));
-            return adminDefault;
-        }
-        return JSON.parse(usersJSON);
-    };
-
-    /**
-     * Guarda un array de usuarios en Local Storage.
-     * @param {Array} users
-     */
-    const saveUsers = (users) => {
-        localStorage.setItem(USERS_KEY, JSON.stringify(users));
-    };
-
-
-    // --- 4. Funciones para alternar Vistas ---
+    // --- 2. Funciones para alternar Vistas ---
 
     const showRegisterView = () => {
         loginForm.style.display = 'none';    // Oculta login
         registerForm.style.display = 'block'; // Muestra registro
         loginErrorMessage.style.display = 'none'; // Limpia errores
+        if(registerErrorMessage) registerErrorMessage.style.display = 'none';
+        if(registerSuccessMessage) registerSuccessMessage.style.display = 'none';
     };
 
     const showLoginView = () => {
         registerForm.style.display = 'none'; // Oculta registro
         loginForm.style.display = 'block';   // Muestra login
-        registerErrorMessage.style.display = 'none'; // Limpia errores
-        registerSuccessMessage.style.display = 'none';
-    };
-
-
-    // --- 5. Lógica de Registro ---
-
-    /**
-     * Maneja el envío del formulario de registro.
-     */
-    const handleRegister = (event) => {
-        event.preventDefault(); // Prevenimos el envío
-
-        // Limpiamos mensajes previos
-        registerErrorMessage.style.display = 'none';
-        registerSuccessMessage.style.display = 'none';
+        if(registerErrorMessage) registerErrorMessage.style.display = 'none'; // Limpia errores
+        if(registerSuccessMessage) registerSuccessMessage.style.display = 'none';
         
-        try {
-            // --- INICIO VALIDACIONES ---
-            const username = Validaciones.validarCampoTexto(registerUsernameInput.value, 'Nombre de Usuario');
-            const rol = Validaciones.validarCampoTexto(registerRolInput.value, 'Rol');
-            const password = Validaciones.validarPassword(registerPasswordInput.value, true); // true = es nuevo, requerido
-            const confirmPassword = registerConfirmPasswordInput.value;
-
-            if (password !== confirmPassword) {
-                Validaciones.mostrarError('Las contraseñas no coinciden.');
-            }
-
-            // --- Verificación de Usuario Existente ---
-            const users = getUsers();
-            const userExists = users.some(user => user.username.toLowerCase() === username.toLowerCase());
-
-            if (userExists) {
-                Validaciones.mostrarError('El nombre de usuario ya está en uso.');
-            }
-            // --- FIN VALIDACIONES ---
-
-            const newUser = {
-                id: `user_${Date.now()}`,
-                username: username,
-                password: password,
-                rol: rol,
-                medicoId: null // El rol 'Medico' debe ser vinculado por un Admin
-            };
-
-            users.push(newUser);
-            saveUsers(users);
-
-            // --- ¡BITÁCORA! ---
-            try {
-                // Registra la acción usando el "username" que se acaba de crear
-                // ponemos el username en localStorage temporalmente para la bitácora
-                localStorage.setItem('username', username);
-                window.registrarBitacora('Login', 'Registro', `Se creó la cuenta '${username}' (Rol: ${rol}).`);
-                localStorage.removeItem('username'); // Lo quitamos de inmediato
-            } catch (e) {
-                console.warn("No se pudo registrar en bitácora (login):", e.message);
-            }
-            // --- Fin Bitácora ---
-
-            registerSuccessMessage.textContent = '¡Registro exitoso! Ahora puedes iniciar sesión.';
-            registerSuccessMessage.style.display = 'block';
-            registerForm.reset();
-
-            setTimeout(() => {
-                showLoginView();
-            }, 2000);
-        
-        } catch (error) {
-            // Mostramos el error de validación
-            registerErrorMessage.textContent = error.message;
-            registerErrorMessage.style.display = 'block';
-        }
-    };
-
-
-    // --- 6. Lógica de Login ---
-
-    /**
-     * Maneja el envío del formulario de login.
-     */
-    const handleLogin = (event) => {
-        event.preventDefault(); // Prevenimos el envío
-        const username = loginUsernameInput.value;
-        const password = loginPasswordInput.value;
-        loginErrorMessage.style.display = 'none';
-
-        const users = getUsers();
-        
-        const foundUser = users.find(user => 
-            user.username === username && 
-            user.password === password
-        );
-
-        if (foundUser) {
-            localStorage.setItem('isAuthenticated', 'true');
-            localStorage.setItem('userRole', foundUser.rol);
-            localStorage.setItem('username', foundUser.username);
-            localStorage.setItem('userId', foundUser.id);
-            if (foundUser.rol === 'Medico' && foundUser.medicoId) {
-                localStorage.setItem('medicoId', foundUser.medicoId);
-            }
-
-            // --- ¡BITÁCORA! ---
-            if(window.registrarBitacora) {
-                window.registrarBitacora('Login', 'Inicio de Sesión', `Usuario '${username}' accedió al sistema.`);
-            }
-            
-            window.location.href = 'index.html';
-
-        } else {
-            loginErrorMessage.textContent = 'Usuario o contraseña incorrectos.';
+        // Verificar si hay errores en la URL (devueltos por PHP)
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('error')) {
+            loginErrorMessage.textContent = urlParams.get('error');
             loginErrorMessage.style.display = 'block';
         }
+        if (urlParams.has('reg_success')) {
+             // Si venimos de un registro exitoso
+             if(registerSuccessMessage) {
+                 registerSuccessMessage.textContent = urlParams.get('reg_success');
+                 registerSuccessMessage.style.display = 'block';
+             }
+        }
     };
 
 
-    // --- 7. Asignación de Eventos ---
+    // --- 3. Lógica de Registro (Validación Cliente) ---
 
-    // Asignamos las funciones a los eventos 'submit' de los formularios
-    loginForm.addEventListener('submit', handleLogin);
-    registerForm.addEventListener('submit', handleRegister);
+    /**
+     * Maneja la validación previa al envío del formulario de registro.
+     */
+    const handleRegisterSubmit = (event) => {
+        // No prevenimos el default si todo está bien, para que se envíe al PHP
+        
+        // Limpiamos mensajes previos
+        if(registerErrorMessage) registerErrorMessage.style.display = 'none';
+        
+        try {
+            // --- INICIO VALIDACIONES BÁSICAS ---
+            // (Las validaciones fuertes se hacen en el backend, aquí solo UX)
+            if(typeof Validaciones !== 'undefined') {
+                 const username = Validaciones.validarCampoTexto(registerUsernameInput.value, 'Nombre de Usuario');
+                 const rol = Validaciones.validarCampoTexto(registerRolInput.value, 'Rol');
+                 const password = Validaciones.validarPassword(registerPasswordInput.value, true); 
+                 const confirmPassword = registerConfirmPasswordInput.value;
+
+                 if (password !== confirmPassword) {
+                     throw new Error('Las contraseñas no coinciden.');
+                 }
+            } else {
+                // Fallback si no existe Validaciones
+                if(registerPasswordInput.value !== registerConfirmPasswordInput.value) {
+                    throw new Error('Las contraseñas no coinciden.');
+                }
+            }
+            // Si pasa, dejamos que el form se envíe a php/register.php
+        
+        } catch (error) {
+            event.preventDefault(); // Detenemos el envío
+            if(registerErrorMessage) {
+                registerErrorMessage.textContent = error.message;
+                registerErrorMessage.style.display = 'block';
+            }
+        }
+    };
+
+
+    // --- 4. Asignación de Eventos ---
+
+    // Validación antes de enviar registro
+    if(registerForm) registerForm.addEventListener('submit', handleRegisterSubmit);
+
+    // Login se envía directo a php/login.php, no requiere JS interceptor salvo validaciones opcionales
 
     // Asignamos las funciones a los 'click' de los enlaces
-    showRegisterLink.addEventListener('click', (e) => {
-        e.preventDefault(); // Evita que el enlace '#' recargue la página
+    if(showRegisterLink) showRegisterLink.addEventListener('click', (e) => {
+        e.preventDefault(); 
         showRegisterView();
     });
 
-    showLoginLink.addEventListener('click', (e) => {
+    if(showLoginLink) showLoginLink.addEventListener('click', (e) => {
         e.preventDefault();
         showLoginView();
     });
 
-    // Mostramos la vista de Login al cargar
+    // Mostramos la vista de Login al cargar (y chequeamos errores de URL)
     showLoginView();
 });

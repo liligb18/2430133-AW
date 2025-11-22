@@ -10,19 +10,24 @@
 <body>
 
     <div class="login-container">
+        <?php
+            require_once __DIR__ . '/php/security.php';
+            $csrf = generate_csrf_token();
+        ?>
 
         <form id="login-form" action="php/login.php" method="post">
             <h2>Bienvenido</h2>
             <p>Clínica UPV</p>
-            <div class="input-group">
+                <div class="input-group">
                 <label for="login-username">Usuario</label>
-                <input type="text" id="login-username" name="login" required>
+                <input type="text" id="login-username" name="login" required maxlength="150" autocomplete="username">
             </div>
             <div class="input-group">
                 <label for="login-password">Contraseña</label>
-                <input type="password" id="login-password" name="password" required>
+                <input type="password" id="login-password" name="password" required maxlength="128" autocomplete="current-password">
             </div>
             <button type="submit">Ingresar</button>
+            <input type="hidden" name="csrf_token" value="<?php echo htmlentities($csrf); ?>">
             <p id="login-error-message" class="error-message">
                 <?php if(isset($_GET['error'])){ echo htmlentities($_GET['error']); } ?>
             </p>
@@ -36,11 +41,11 @@
             <p>Registro de nuevo personal</p>
             <div class="input-group">
                 <label for="register-username">Nombre de Usuario</label>
-                <input type="text" id="register-username" name="nombre" required>
+                <input type="text" id="register-username" name="nombre" required maxlength="100" autocomplete="name">
             </div>
             <div class="input-group">
                 <label for="register-email">Correo electrónico</label>
-                <input type="email" id="register-email" name="correo" required>
+                <input type="email" id="register-email" name="correo" required maxlength="150" autocomplete="email">
             </div>
             <div class="input-group">
                 <label for="register-rol">Rol de Usuario</label>
@@ -53,13 +58,14 @@
             </div>
             <div class="input-group">
                 <label for="register-password">Contraseña (mín. 6 caracteres)</label>
-                <input type="password" id="register-password" name="password" required>
+                <input type="password" id="register-password" name="password" required minlength="6" maxlength="128" autocomplete="new-password">
             </div>
             <div class="input-group">
                 <label for="register-confirm-password">Confirmar Contraseña</label>
-                <input type="password" id="register-confirm-password" name="confirm_password" required>
+                <input type="password" id="register-confirm-password" name="confirm_password" required minlength="6" maxlength="128" autocomplete="new-password">
             </div>
             <button type="submit">Registrar</button>
+            <input type="hidden" name="csrf_token" value="<?php echo htmlentities($csrf); ?>">
             <p id="register-error-message" class="error-message">
                 <?php if(isset($_GET['reg_error'])){ echo htmlentities($_GET['reg_error']); } ?>
             </p>

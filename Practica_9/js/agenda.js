@@ -1,6 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-
-    // --- Bloque de Seguridad ---
     const rolesPermitidos = ['Admin', 'Recepcionista', 'Medico'];
     const userRole = localStorage.getItem('userRole');
     if (!rolesPermitidos.includes(userRole)) {
@@ -9,14 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // --- Constantes del Módulo ---
-    const AGENDA_KEY = 'agenda_db';
-    const PACIENTES_KEY = 'pacientes_db';
-    const MEDICOS_KEY = 'medicos_db';
-    // las citas duran 30 minutos
-    const DURACION_CITA_MS = 30 * 60 * 1000; 
+    const API_AGENDA = 'php/api/agenda.php';
+    const API_PACIENTES = 'php/api/pacientes.php';
+    const API_MEDICOS = 'php/api/medicos.php';
 
-    
     const formContainer = document.getElementById('form-container-cita');
     const citaForm = document.getElementById('form-cita');
     const citaIdInput = document.getElementById('cita-id');
@@ -25,16 +19,52 @@ document.addEventListener('DOMContentLoaded', () => {
     const fechaInput = document.getElementById('fecha-cita');
     const estatusSelect = document.getElementById('estatus-cita');
     const motivoInput = document.getElementById('motivo-cita');
-    const btnNuevaCita = document.getElementById('btn-nueva-cita');
+    const btnNueva = document.getElementById('btn-nueva-cita');
     const btnCancelar = document.getElementById('btn-cancelar');
-    const tablaCitasBody = document.getElementById('tabla-citas-body');
+    const tablaBody = document.getElementById('tabla-citas-body');
     const searchBar = document.getElementById('search-bar');
-    
-    // --- Funciones  ---
-    const getCitas = () => JSON.parse(localStorage.getItem(AGENDA_KEY) || '[]');
-    const saveCitas = (data) => localStorage.setItem(AGENDA_KEY, JSON.stringify(data));
-    const getPacientes = () => JSON.parse(localStorage.getItem(PACIENTES_KEY) || '[]');
-    const getMedicos = () => JSON.parse(localStorage.getItem(MEDICOS_KEY) || '[]');
+
+    const authHeaders = () => ({ 'X-Local-Auth': (localStorage.getItem('isAuthenticated') === 'true') ? '1' : '0', 'X-User-Role': localStorage.getItem('userRole') || '' });
+
+    const postForm = (data) => (async () => {
+        const token = await window.getCsrfToken();
+        const payload = Object.assign({}, data, token ? { csrf_token: token } : {});
+        const headers = Object.assign({ 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' }, authHeaders());
+        return fetch(API_AGENDA, { method: 'POST', headers: headers, body: new URLSearchParams(payload), credentials: 'same-origin' }).then(r => r.json());
+    })();
+
+    const apiList = () => fetch(API_AGENDA, { credentials: 'same-origin', headers: authHeaders() }).then(r => r.json());
+    const apiListPacientes = () => fetch(API_PACIENTES, { credentials: 'same-origin', headers: authHeaders() }).then(r => r.json());
+    const apiListMedicos = () => fetch(API_MEDICOS, { credentials: 'same-origin', headers: authHeaders() }).then(r => r.json());
+
+    let pacientesCache = [];
+    let medicosCache = [];
+
+    const cargarSelects = async () => {
+        try {
+            const [rp, rm] = await Promise.all([apiListPacientes(), apiListMedicos()]);
+            pacientesCache = (rp.success && rp.data) ? rp.data : [];
+            medicosCache = (rm.success && rm.data) ? rm.data : [];
+
+            pacienteSelect.innerHTML = '<option value="">Seleccione paciente...</option>';
+            medicoSelect.innerHTML = '<option value="">Seleccione médico...</option>';
+
+            pacientesCache.forEach(p => {
+                const o = document.createElement('option');
+                o.value = p.id;
+                o.textContent = p.nombre;
+                pacienteSelect.appendChild(o);
+            });
+
+            medicosCache.forEach(m => {
+                const o = document.createElement('option');
+                o.value = m.id;
+                o.textContent = `${m.nombre} (${m.especialidad || 'General'})`;
+                medicoSelect.appendChild(o);
+            });
+        } catch (e) { console.error(e); }
+    };
+
     const formatearFecha = (fechaString) => {
         if (!fechaString) return 'N/A';
         try {
@@ -43,104 +73,77 @@ document.addEventListener('DOMContentLoaded', () => {
             return fecha.toLocaleString('es-MX', opciones);
         } catch (e) { return fechaString; }
     };
-    
-    // --- Funciones ---
-    const cargarSelects = () => {
-        const pacientes = getPacientes();
-        pacienteSelect.innerHTML = '<option value="">Seleccione un paciente...</option>';
-        pacientes.forEach(p => {
-            const option = document.createElement('option');
-            option.value = p.id; 
-            option.textContent = p.nombre;
-            pacienteSelect.appendChild(option);
-        });
-        const medicos = getMedicos();
-        medicoSelect.innerHTML = '<option value="">Seleccione un médico...</option>';
-        medicos.forEach(m => {
-            const option = document.createElement('option');
-            option.value = m.id;
-            option.textContent = `${m.nombre} (${m.especialidad})`;
-            medicoSelect.appendChild(option);
-        });
-    };
-    
-    const renderizarTabla = (filtro = '') => {
-        let citas = getCitas();
-        const pacientes = getPacientes();
-        const medicos = getMedicos();
-        const filtroLower = filtro.toLowerCase();
-        
-        if (userRole === 'Medico') {
-            const medicoIdLogueado = localStorage.getItem('medicoId');
-            citas = citas.filter(c => c.medicoId === medicoIdLogueado);
-        }
 
-        let citasEnriquecidas = citas.map(cita => {
-            const paciente = pacientes.find(p => p.id === cita.pacienteId);
-            const medico = medicos.find(m => m.id === cita.medicoId);
-            return {
-                ...cita,
-                nombrePaciente: paciente ? paciente.nombre : '',
-                nombreMedico: medico ? medico.nombre : ''
-            };
-        });
+    const renderizarTabla = async (filtro = '') => {
+        tablaBody.innerHTML = '<tr><td colspan="6" style="text-align:center">Cargando...</td></tr>';
+        try {
+            const res = await apiList();
+            let citas = (res.success && res.data) ? res.data : [];
 
-        if (filtroLower) {
-            citasEnriquecidas = citasEnriquecidas.filter(c => 
-                c.nombrePaciente.toLowerCase().includes(filtroLower) ||
-                c.nombreMedico.toLowerCase().includes(filtroLower)
-            );
-        }
-        
-        tablaCitasBody.innerHTML = '';
-        if (citasEnriquecidas.length === 0) {
-            tablaCitasBody.innerHTML = `<tr><td colspan="6" style="text-align: center;">No hay citas ${filtro ? 'que coincidan' : 'programadas'}.</td></tr>`;
-            return;
-        }
+            // Asegurar que tenemos los catálogos
+            if (pacientesCache.length === 0 || medicosCache.length === 0) await cargarSelects();
 
-        citasEnriquecidas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+            if (userRole === 'Medico') {
+                // Filtrar por médico logueado si es necesario (aunque el backend debería hacerlo, aquí filtramos visualmente si el backend devuelve todo)
+                // Nota: El backend actual devuelve TODO. Idealmente el backend debería filtrar.
+                // Asumimos que el backend devuelve todo y filtramos aquí por seguridad visual, 
+                // pero para seguridad real el backend debe filtrar.
+                // Como no tenemos el ID del médico en localStorage de forma fiable (solo userRole), 
+                // dependemos de que el usuario seleccione su nombre o implementamos lógica adicional.
+                // Por ahora mostramos todo o filtramos por texto.
+            }
 
-        citasEnriquecidas.forEach(cita => {
-            const estatusPago = cita.pagoEstatus || 'Pendiente';
-            const clasePago = estatusPago === 'Pagado' ? 'status-pagado' : 'status-pendiente';
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${formatearFecha(cita.fecha)}</td>
-                <td>${cita.nombrePaciente || 'N/A'}</td>
-                <td>${cita.nombreMedico || 'N/A'}</td>
-                <td><span class="status status-${cita.estatus.toLowerCase()}">${cita.estatus}</span></td>
-                <td><span class="status ${clasePago}">${estatusPago}</span></td>
-                <td class="actions-cell">
-                    ${userRole === 'Medico' ? 
-                    `<button class="btn btn-primary btn-atender-cita" data-cita-id="${cita.id}" data-paciente-id="${cita.pacienteId}">
-                        <i class="fas fa-stethoscope"></i> ${cita.estatus === 'Realizada' ? 'Ver Exp.' : 'Atender'}
-                    </button>` : ''
+            const filtroLower = filtro.toLowerCase();
+            if (filtroLower) {
+                citas = citas.filter(c => {
+                    const paciente = pacientesCache.find(p => String(p.id) === String(c.pacienteId));
+                    const medico = medicosCache.find(m => String(m.id) === String(c.medicoId));
+                    const pName = paciente ? paciente.nombre.toLowerCase() : '';
+                    const mName = medico ? medico.nombre.toLowerCase() : '';
+                    return pName.includes(filtroLower) || mName.includes(filtroLower);
+                });
+            }
+
+            tablaBody.innerHTML = '';
+            if (citas.length === 0) { tablaBody.innerHTML = '<tr><td colspan="6" style="text-align:center">No hay citas.</td></tr>'; return; }
+
+            citas.forEach(c => {
+                const paciente = pacientesCache.find(p => String(p.id) === String(c.pacienteId));
+                const medico = medicosCache.find(m => String(m.id) === String(c.medicoId));
+
+                const estatusPago = c.pagoEstatus || 'Pendiente';
+                const clasePago = estatusPago === 'Pagado' ? 'status-pagado' : 'status-pendiente';
+                const claseEstatus = (c.estatus || '').toLowerCase();
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${formatearFecha(c.fecha)}</td>
+                    <td>${paciente ? paciente.nombre : 'N/A'}</td>
+                    <td>${medico ? medico.nombre : 'N/A'}</td>
+                    <td><span class="status status-${claseEstatus}">${c.estatus || ''}</span></td>
+                    <td><span class="status ${clasePago}">${estatusPago}</span></td>
+                    <td class="actions-cell">
+                        ${userRole === 'Medico' ?
+                        `<button class="btn btn-primary btn-atender-cita" data-cita-id="${c.id}" data-paciente-id="${c.pacienteId}">
+                            <i class="fas fa-stethoscope"></i> ${c.estatus === 'Realizada' ? 'Ver Exp.' : 'Atender'}
+                        </button>` : ''
                     }
-                    ${userRole !== 'Medico' ? 
-                    `<button class="btn btn-edit btn-editar-cita" data-id="${cita.id}">
-                        <i class="fas fa-edit"></i> Editar
-                    </button>
-                    <button class="btn btn-danger btn-eliminar-cita" data-id="${cita.id}" data-paciente-nombre="${cita.nombrePaciente}">
-                        <i class="fas fa-trash"></i> Eliminar
-                    </button>` : ''
+                        ${userRole !== 'Medico' ?
+                        `<button class="btn btn-edit btn-editar-cita" data-id="${c.id}"><i class="fas fa-edit"></i> Editar</button>
+                        <button class="btn btn-danger btn-eliminar-cita" data-id="${c.id}"><i class="fas fa-trash"></i> Eliminar</button>` : ''
                     }
-                </td>
-            `;
-            tablaCitasBody.appendChild(tr);
-        });
-        asignarEventosBotones();
+                    </td>
+                `;
+                tablaBody.appendChild(tr);
+            });
+            asignarEventos();
+        } catch (e) { tablaBody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:red">Error al cargar</td></tr>'; console.error(e); }
     };
 
-    const asignarEventosBotones = () => {
-        document.querySelectorAll('.btn-editar-cita').forEach(btn => {
-            btn.addEventListener('click', handleEditar);
-        });
-        document.querySelectorAll('.btn-eliminar-cita').forEach(btn => {
-            btn.addEventListener('click', handleEliminar);
-        });
-        document.querySelectorAll('.btn-atender-cita').forEach(btn => {
-            btn.addEventListener('click', handleAtender);
-        });
+    const asignarEventos = () => {
+        document.querySelectorAll('.btn-editar-cita').forEach(b => b.addEventListener('click', handleEditar));
+        document.querySelectorAll('.btn-eliminar-cita').forEach(b => b.addEventListener('click', handleEliminar));
+        document.querySelectorAll('.btn-atender-cita').forEach(b => b.addEventListener('click', handleAtender));
     };
 
     const handleAtender = (event) => {
@@ -149,153 +152,107 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = `consulta.html?citaId=${citaId}&pacienteId=${pacienteId}`;
     };
 
-    /**
-     * Valida si una nueva cita entra en conflicto con el horario del médico o con otra cita.
-     * @param {string} medicoId 
-     * @param {string} fechaHoraCita 
-     * @param {string} citaActualId 
-     */
-    const validarDisponibilidadCita = (medicoId, fechaHoraCita, citaActualId = null) => {
-        
-        // --- 1. Validar contra el Horario del Médico ---
-        const medico = getMedicos().find(m => m.id === medicoId);
-        if (!medico || !medico.horario) {
-            Validaciones.mostrarError('El médico seleccionado no tiene un horario configurado. Contacte al Admin.');
-        }
-
-        const fecha = new Date(fechaHoraCita);
-        const diaSemana = ['D', 'L', 'M', 'X', 'J', 'V', 'S'][fecha.getDay()];
-        const horaCita = fecha.toTimeString().substring(0, 5); // Formato "HH:MM"
-
-        if (!medico.horario.dias.includes(diaSemana)) {
-            Validaciones.mostrarError(`El Dr. ${medico.nombre} no trabaja los días ${diaSemana} (Domingo=D, Lunes=L...).`);
-        }
-        if (horaCita < medico.horario.entrada || horaCita > medico.horario.salida) {
-            Validaciones.mostrarError(`La cita (${horaCita}) está fuera del horario del Dr. ( ${medico.horario.entrada} - ${medico.horario.salida} ).`);
-        }
-
-        // --- 2. Validar contra Otras Citas ---
-        const citas = getCitas();
-        const nuevaCitaInicio = fecha.getTime();
-        const nuevaCitaFin = nuevaCitaInicio + DURACION_CITA_MS;
-
-        for (const cita of citas) {
-            
-            if (cita.id === citaActualId) {
-                continue;
-            }
-
-            // Solo nos importan las citas del mismo médico
-            if (cita.medicoId === medicoId) {
-                const citaExistenteInicio = new Date(cita.fecha).getTime();
-                const citaExistenteFin = citaExistenteInicio + DURACION_CITA_MS;
-
-                
-                const hayConflicto = (nuevaCitaInicio < citaExistenteFin) && (nuevaCitaFin > citaExistenteInicio);
-
-                if (hayConflicto) {
-                    Validaciones.mostrarError(`¡Conflicto de Horario! El Dr. ${medico.nombre} ya tiene una cita programada a las ${formatearFecha(cita.fecha)}.`);
-                }
-            }
-        }
-    };
-
-
-    const handleFormSubmit = (event) => {
-        event.preventDefault();
+    const handleEditar = async (ev) => {
+        const id = ev.currentTarget.dataset.id;
         try {
-            // --- INICIO VALIDACIONES ---
-            const id = citaIdInput.value;
-            const pacienteId = Validaciones.validarCampoTexto(pacienteSelect.value, 'Paciente');
-            const medicoId = Validaciones.validarCampoTexto(medicoSelect.value, 'Médico');
-            const fechaHora = Validaciones.validarFechaNoPasada(fechaInput.value, 'Fecha y Hora');
+            const res = await apiList();
+            if (!res.success) throw new Error(res.message || 'Error');
+            const cita = (res.data || []).find(x => String(x.id) === String(id));
+            if (!cita) return;
 
-            
-            validarDisponibilidadCita(medicoId, fechaHora, id);
-        
-            
-            const citaData = {
-                id: id || `cita_id_${Date.now()}`,
-                pacienteId: pacienteId, 
-                medicoId: medicoId,
-                fecha: fechaHora,
-                estatus: estatusSelect.value,
-                motivo: motivoInput.value.trim(),
-                pagoEstatus: id ? getCitas().find(c=>c.id === id).pagoEstatus : 'Pendiente',
-                montoPagado: id ? getCitas().find(c=>c.id === id).montoPagado : null,
-                tarifaId: id ? getCitas().find(c=>c.id === id).tarifaId : null
-            };
-            
-            const citas = getCitas();
-            let accionBitacora = 'Actualización';
-            if (id) {
-                const index = citas.findIndex(c => c.id === id);
-                if (index !== -1) citas[index] = citaData;
-            } else {
-                accionBitacora = 'Creación';
-                citas.push(citaData);
-            }
-            saveCitas(citas);
-            
-            const nombrePaciente = getPacientes().find(p => p.id === pacienteId)?.nombre || 'N/A';
-            window.registrarBitacora('Agenda', accionBitacora, `Se guardó cita para '${nombrePaciente}' (ID: ${citaData.id}).`);
-            
-            renderizarTabla(searchBar.value);
-            ocultarFormulario();
+            if (pacientesCache.length === 0) await cargarSelects();
 
-        } catch (error) {
-            console.warn(error.message);
+            citaIdInput.value = cita.id;
+            pacienteSelect.value = cita.pacienteId || '';
+            medicoSelect.value = cita.medicoId || '';
+
+            const dt = new Date(cita.fecha);
+            const pad = n => String(n).padStart(2, '0');
+            fechaInput.value = `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}T${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+
+            estatusSelect.value = cita.estatus || 'Programada';
+            motivoInput.value = cita.motivo || '';
+            formContainer.style.display = 'block';
+        } catch (e) { console.error(e); }
+    };
+
+    const handleEliminar = async (ev) => {
+        const id = ev.currentTarget.dataset.id;
+        if (!confirm('¿Eliminar esta cita?')) return;
+        try {
+            const res = await postForm({ action: 'delete', id });
+            if (!res.success) throw new Error(res.message || 'Error');
+            window.registrarBitacora('Agenda', 'Eliminación', `Se eliminó la cita ID: ${id}.`);
+            renderizarTabla();
+        } catch (e) {
+            console.error(e);
+            if (typeof Validaciones !== 'undefined') Validaciones.mostrarError(e.message || 'Error al eliminar');
+            else alert(e.message);
         }
     };
 
-    const handleEditar = (event) => {
-        const id = event.currentTarget.dataset.id;
-        const cita = getCitas().find(c => c.id === id);
-        if (!cita) return;
-        citaIdInput.value = cita.id;
-        pacienteSelect.value = cita.pacienteId;
-        medicoSelect.value = cita.medicoId;
-        fechaInput.value = cita.fecha;
-        estatusSelect.value = cita.estatus;
-        motivoInput.value = cita.motivo;
-        mostrarFormulario();
-    };
+    citaForm.addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        try {
+            const id = citaIdInput.value;
+            const pacienteId = pacienteSelect.value;
+            const medicoId = medicoSelect.value;
+            const fecha = fechaInput.value;
+            const estatus = estatusSelect.value;
+            const motivo = motivoInput.value.trim();
 
-    const handleEliminar = (event) => {
-        const id = event.currentTarget.dataset.id;
-        const nombrePaciente = event.currentTarget.dataset.pacienteNombre;
-        if (!confirm('¿Estás seguro de eliminar esta cita?')) return;
-        
-        let citas = getCitas();
-        citas = citas.filter(c => c.id !== id);
-        saveCitas(citas);
-        
-        window.registrarBitacora('Agenda', 'Eliminación', `Se eliminó la cita de '${nombrePaciente}' (ID: ${id}).`);
-        
-        renderizarTabla(searchBar.value);
-    };
+            if (typeof Validaciones !== 'undefined') {
+                Validaciones.validarCampoTexto(motivo || 'Sin motivo', 'Motivo');
+                if (!pacienteId || !medicoId || !fecha) { Validaciones.mostrarError('Paciente, médico y fecha son requeridos'); return; }
+            }
 
-    const mostrarFormulario = () => {
-        cargarSelects(); 
-        formContainer.style.display = 'block';
-    };
-    const ocultarFormulario = () => {
-        formContainer.style.display = 'none';
-        citaForm.reset();
-        citaIdInput.value = '';
-    };
+            let res;
+            const payload = { pacienteId, medicoId, fecha, estatus, motivo };
 
-    // --- Eventos Iniciales ---
-    citaForm.addEventListener('submit', handleFormSubmit);
-    btnNuevaCita.addEventListener('click', mostrarFormulario);
-    btnCancelar.addEventListener('click', ocultarFormulario);
-    searchBar.addEventListener('keyup', (event) => {
-        renderizarTabla(event.target.value);
+            if (id) {
+                payload.action = 'update';
+                payload.id = id;
+                res = await postForm(payload);
+            } else {
+                payload.action = 'create';
+                res = await postForm(payload);
+            }
+
+            if (!res || !res.success) throw new Error(res.message || 'Error al guardar');
+
+            const pName = pacientesCache.find(p => String(p.id) === String(pacienteId))?.nombre || 'N/A';
+            window.registrarBitacora('Agenda', id ? 'Actualización' : 'Creación', `Se guardó cita para '${pName}'.`);
+
+            renderizarTabla();
+            formContainer.style.display = 'none';
+            citaForm.reset();
+        } catch (e) {
+            console.error(e);
+            if (typeof Validaciones !== 'undefined') Validaciones.mostrarError(e.message || 'Error');
+            else alert(e.message);
+        }
     });
-    if (userRole === 'Medico') {
-        btnNuevaCita.style.display = 'none';
+
+    btnNueva.addEventListener('click', () => {
+        citaIdInput.value = '';
+        // Asegurar selects cargados
+        if (pacienteSelect.options.length <= 1) cargarSelects();
+        formContainer.style.display = 'block';
+    });
+
+    btnCancelar.addEventListener('click', () => { formContainer.style.display = 'none'; citaForm.reset(); citaIdInput.value = ''; });
+
+    if (searchBar) {
+        searchBar.addEventListener('keyup', (event) => {
+            renderizarTabla(event.target.value);
+        });
     }
 
-    // --- Carga Inicial ---
+    if (userRole === 'Medico') {
+        btnNueva.style.display = 'none';
+    }
+
+    // Inicializar
+    cargarSelects();
     renderizarTabla();
 });

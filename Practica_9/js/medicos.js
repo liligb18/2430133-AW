@@ -34,18 +34,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchBar = document.getElementById('search-bar');
     
     // --- Funciones para llamar a la API ---
-    const postForm = (url, data) => fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
-        body: new URLSearchParams(data)
-    }).then(res => res.json());
-
-    const apiListMedicos = () => fetch(API_MEDICOS).then(r => r.json());
+    const authHeaders = () => ({ 'X-Local-Auth': (localStorage.getItem('isAuthenticated') === 'true') ? '1' : '0', 'X-User-Role': localStorage.getItem('userRole') || '' });
+    const postForm = (url, data) => (async () => {
+        const token = await window.getCsrfToken();
+        const payload = Object.assign({}, data, token ? { csrf_token: token } : {});
+        const headers = Object.assign({ 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' }, authHeaders());
+        return fetch(url, { method: 'POST', headers: headers, body: new URLSearchParams(payload), credentials: 'same-origin' }).then(res => res.json());
+    })();
+    const apiListMedicos = () => fetch(API_MEDICOS, { credentials: 'same-origin', headers: authHeaders() }).then(r => r.json());
+    const apiListEspecialidades = () => fetch(API_ESPECIALIDADES, { credentials: 'same-origin', headers: authHeaders() }).then(r => r.json());
     const apiCreateMedico = (payload) => postForm(API_MEDICOS, Object.assign({ action: 'create' }, payload));
     const apiUpdateMedico = (payload) => postForm(API_MEDICOS, Object.assign({ action: 'update' }, payload));
     const apiDeleteMedico = (id) => postForm(API_MEDICOS, { action: 'delete', id });
-
-    const apiListEspecialidades = () => fetch(API_ESPECIALIDADES).then(r => r.json());
 
     
     // --- Funciones del CRUD ---

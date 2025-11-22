@@ -51,11 +51,11 @@
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="nombre">Nombre Completo</label>
-                                <input type="text" id="nombre" required>
+                                <input type="text" id="nombre" required maxlength="150" autocomplete="name">
                             </div>
                             <div class="form-group">
                                 <label for="curp">CURP</label>
-                                <input type="text" id="curp">
+                                <input type="text" id="curp" maxlength="18" pattern="[A-Za-z]{4}\d{6}[HM][A-Za-z]{5}[A-Za-z\d]{2}" title="Formato CURP: AAAA000000HAAAAA00">
                             </div>
                             <div class="form-group">
                                 <label for="fecha-nacimiento">Fecha de Nacimiento</label>
@@ -71,23 +71,23 @@
                             </div>
                             <div class="form-group">
                                 <label for="telefono">Teléfono (10 dígitos)</label>
-                                <input type="tel" id="telefono">
+                                <input type="tel" id="telefono" pattern="\d{10}" maxlength="10" inputmode="numeric" title="10 dígitos numéricos">
                             </div>
                             <div class="form-group">
                                 <label for="email">Correo Electrónico</label>
-                                <input type="email" id="email">
+                                <input type="email" id="email" maxlength="150" autocomplete="email">
                             </div>
                             <div class="form-group full-width">
                                 <label for="direccion">Dirección</label>
-                                <textarea id="direccion"></textarea>
+                                <textarea id="direccion" maxlength="500"></textarea>
                             </div>
                             <div class="form-group">
                                 <label for="contacto-emergencia">Contacto de Emergencia</label>
-                                <input type="text" id="contacto-emergencia">
+                                <input type="text" id="contacto-emergencia" maxlength="100">
                             </div>
                             <div class="form-group">
                                 <label for="telefono-emergencia">Teléfono de Emergencia (10 dígitos)</label>
-                                <input type="tel" id="telefono-emergencia">
+                                <input type="tel" id="telefono-emergencia" pattern="\d{10}" maxlength="10" inputmode="numeric" title="10 dígitos numéricos">
                             </div>
                             <div class="form-group full-width">
                                 <label for="alergias">Alergias</label>

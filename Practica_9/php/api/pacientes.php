@@ -1,17 +1,17 @@
 <?php
 // php/api/pacientes.php
-header('Content-Type: application/json; charset=utf-8');
-require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/common.php';
 $pdo = getPDO();
-
 try {
+    // Requerir autenticación (cualquier rol autenticado puede listar pacientes)
+    requireAuth();
+
     $stmt = $pdo->query('SELECT IdPaciente, NombreCompleto FROM controlpacientes');
     $rows = $stmt->fetchAll();
-    $data = array_map(function($r){ return ['id'=>$r['IdPaciente'],'nombre'=>$r['NombreCompleto']]; }, $rows);
+    $data = array_map(function($r){ return ['id'=> (int)$r['IdPaciente'],'nombre'=>cleanString($r['NombreCompleto'],150)]; }, $rows);
     echo json_encode(['success'=>true,'data'=>$data]);
-} catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['success'=>false,'message'=>$e->getMessage()]);
+} catch (Throwable $e) {
+    apiErrorResponse($e);
 }
 
 ?>

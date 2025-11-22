@@ -20,11 +20,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const montoInput = document.getElementById('monto-pago');
     const btnCancelarPago = document.getElementById('btn-cancelar-pago');
     const tablaPagosBody = document.getElementById('tabla-pagos-body');
-    const postForm = (url, data) => fetch(url, { method: 'POST', headers: {'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'}, body: new URLSearchParams(data) }).then(r => r.json());
-    const apiListAgenda = () => fetch(API_AGENDA).then(r => r.json());
-    const apiListPacientes = () => fetch(API_PACIENTES).then(r => r.json());
-    const apiListMedicos = () => fetch(API_MEDICOS).then(r => r.json());
-    const apiListTarifas = () => fetch(API_TARIFAS).then(r => r.json());
+    const authHeaders = () => ({ 'X-Local-Auth': (localStorage.getItem('isAuthenticated') === 'true') ? '1' : '0', 'X-User-Role': localStorage.getItem('userRole') || '' });
+    const postForm = (url, data) => (async () => {
+        const token = await window.getCsrfToken();
+        const payload = Object.assign({}, data, token ? { csrf_token: token } : {});
+        const headers = Object.assign({ 'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8' }, authHeaders());
+        return fetch(url, { method: 'POST', headers: headers, body: new URLSearchParams(payload), credentials: 'same-origin' }).then(r => r.json());
+    })();
+    const apiListAgenda = () => fetch(API_AGENDA, { credentials: 'same-origin', headers: authHeaders() }).then(r => r.json());
+    const apiListPacientes = () => fetch(API_PACIENTES, { credentials: 'same-origin', headers: authHeaders() }).then(r => r.json());
+    const apiListMedicos = () => fetch(API_MEDICOS, { credentials: 'same-origin', headers: authHeaders() }).then(r => r.json());
+    const apiListTarifas = () => fetch(API_TARIFAS, { credentials: 'same-origin', headers: authHeaders() }).then(r => r.json());
     const apiCreatePago = (data) => postForm(API_PAGOS, Object.assign({ action: 'create' }, data));
 
     const cargarTarifasSelect = async () => {

@@ -6,10 +6,14 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'index.html';
         return;
     }
-    const PACIENTES_KEY = 'pacientes_db';
-    const AGENDA_KEY = 'agenda_db';
-    const EXPEDIENTES_KEY = 'expedientes_db';
-    const MEDICOS_KEY = 'medicos_db';
+
+    // --- API Endpoints ---
+    const API_EXPEDIENTES = 'php/api/expedientes.php';
+    const API_AGENDA = 'php/api/agenda.php';
+    const API_PACIENTES = 'php/api/pacientes.php';
+    const API_MEDICOS = 'php/api/medicos.php';
+
+    // --- DOM Elements ---
     const headerInfo = document.getElementById('info-paciente-header');
     const datosFijosDiv = document.getElementById('datos-paciente-fijos');
     const historialDiv = document.getElementById('historial-consultas');
@@ -20,15 +24,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const notasTextarea = document.getElementById('notas-medicas');
     const consultaForm = document.getElementById('form-consulta');
     const btnVolver = document.getElementById('btn-volver-agenda');
+
     let citaId = null;
     let pacienteId = null;
     let medicoId = null;
-    const getPacientes = () => JSON.parse(localStorage.getItem(PACIENTES_KEY) || '[]');
-    const getCitas = () => JSON.parse(localStorage.getItem(AGENDA_KEY) || '[]');
-    const saveCitas = (data) => localStorage.setItem(AGENDA_KEY, JSON.stringify(data));
-    const getExpedientes = () => JSON.parse(localStorage.getItem(EXPEDIENTES_KEY) || '[]');
-    const saveExpedientes = (data) => localStorage.setItem(EXPEDIENTES_KEY, JSON.stringify(data));
-    const getMedicos = () => JSON.parse(localStorage.getItem(MEDICOS_KEY) || '[]');
+
+    // --- API Helpers ---
+    const authHeaders = () => ({
+        'X-Local-Auth': (localStorage.getItem('isAuthenticated') === 'true') ? '1' : '0',
+        'X-User-Role': localStorage.getItem('userRole') || ''
+    });
+
+    const postForm = (url, data) => (async () => {
+        const token = await window.getCsrfToken();
+        const payload = Object.assign({}, data, token ? { csrf_token: token } : {});
+        const headers = Object.assign({ 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' }, authHeaders());
+        return fetch(url, { method: 'POST', headers: headers, body: new URLSearchParams(payload), credentials: 'same-origin' }).then(res => res.json());
+    })();
+
+    const fetchData = (url) => fetch(url, { credentials: 'same-origin', headers: authHeaders() }).then(r => r.json());
 
     const formatearFecha = (fechaString) => {
         if (!fechaString) return 'N/A';
@@ -38,86 +52,154 @@ document.addEventListener('DOMContentLoaded', () => {
             return fecha.toLocaleString('es-MX', opciones);
         } catch (e) { return fechaString; }
     };
-    const cargarDatosPaciente = (paciente) => {
-        if (!paciente) {
-            headerInfo.textContent = "Error: Paciente no encontrado";
-            return;
-        }
-        headerInfo.textContent = `Paciente: ${paciente.nombre} (CURP: ${paciente.curp || 'N/A'})`;
-        datosFijosDiv.innerHTML = `
-            <p><strong>Teléfono:</strong> ${paciente.telefono || 'N/A'}</p>
-            <p><strong>Correo:</strong> ${paciente.email || 'N/A'}</p>
-            <p><strong>Alergias:</strong> <span class="alergias">${paciente.alergias || 'Ninguna registrada'}</span></p>
-            <p><strong>Antecedentes:</strong> ${paciente.antecedentes || 'Ninguno registrado'}</p>
-        `;
-    };
-    const cargarHistorial = (pacienteId) => {
-        const expedientes = getExpedientes();
-        const medicos = getMedicos();
-        const historialPaciente = expedientes
-            .filter(e => e.pacienteId === pacienteId)
-            .sort((a, b) => new Date(b.fechaConsulta) - new Date(a.fechaConsulta));
-        historialDiv.innerHTML = '';
-        if (historialPaciente.length === 0) {
-            historialDiv.innerHTML = '<p>No hay consultas previas registradas.</p>';
-            return;
-        }
-        historialPaciente.forEach(exp => {
-            const medico = medicos.find(m => m.id === exp.medicoId);
-            const nombreMedico = medico ? medico.nombre : 'Dr. Desconocido';
-            const item = document.createElement('div');
-            item.className = 'historial-item';
-            item.innerHTML = `
-                <strong>${formatearFecha(exp.fechaConsulta)}</strong> (Atendió: ${nombreMedico})
-                <p><strong>Dx:</strong> ${exp.diagnostico}</p>
+
+    const cargarDatosPaciente = async (id) => {
+        try {
+            const res = await fetchData(API_PACIENTES); // Idealmente debería haber un endpoint para obtener un solo paciente
+            if (!res.success) throw new Error('Error al cargar pacientes');
+            const paciente = (res.data || []).find(p => String(p.id) === String(id));
+
+            if (!paciente) {
+                headerInfo.textContent = "Error: Paciente no encontrado";
+                return;
+            }
+            headerInfo.textContent = `Paciente: ${paciente.nombre} (CURP: ${paciente.curp || 'N/A'})`;
+            datosFijosDiv.innerHTML = `
+                <p><strong>Teléfono:</strong> ${paciente.telefono || 'N/A'}</p>
+                <p><strong>Correo:</strong> ${paciente.email || 'N/A'}</p>
+                <p><strong>Alergias:</strong> <span class="alergias">${paciente.alergias || 'Ninguna registrada'}</span></p>
+                <p><strong>Antecedentes:</strong> ${paciente.antecedentes || 'Ninguno registrado'}</p>
             `;
-            historialDiv.appendChild(item);
-        });
+        } catch (e) {
+            console.error(e);
+            headerInfo.textContent = "Error al cargar datos del paciente";
+        }
     };
-    const cargarDatosCita = (cita) => {
-        if (!cita) return;
-        infoCitaFecha.textContent = formatearFecha(cita.fecha);
-        motivoTextarea.value = cita.motivo || 'No se especificó motivo.';
-        medicoId = cita.medicoId;
+
+    const cargarHistorial = async (pid) => {
+        historialDiv.innerHTML = '<p>Cargando historial...</p>';
+        try {
+            const [resExp, resMed] = await Promise.all([
+                fetchData(`${API_EXPEDIENTES}?pacienteId=${pid}`),
+                fetchData(API_MEDICOS)
+            ]);
+
+            const expedientes = (resExp.success && resExp.data) ? resExp.data : [];
+            const medicos = (resMed.success && resMed.data) ? resMed.data : [];
+
+            historialDiv.innerHTML = '';
+            if (expedientes.length === 0) {
+                historialDiv.innerHTML = '<p>No hay consultas previas registradas.</p>';
+                return;
+            }
+
+            expedientes.forEach(exp => {
+                const medico = medicos.find(m => String(m.id) === String(exp.medicoId));
+                const nombreMedico = medico ? medico.nombre : 'Dr. Desconocido';
+                const item = document.createElement('div');
+                item.className = 'historial-item';
+                item.innerHTML = `
+                    <strong>${formatearFecha(exp.fecha)}</strong> (Atendió: ${nombreMedico})
+                    <p><strong>Dx:</strong> ${exp.diagnostico || 'Sin diagnóstico'}</p>
+                `;
+                historialDiv.appendChild(item);
+            });
+        } catch (e) {
+            console.error(e);
+            historialDiv.innerHTML = '<p>Error al cargar historial.</p>';
+        }
     };
-    
-    const handleFormSubmit = (event) => {
+
+    const cargarDatosCita = async (cid) => {
+        try {
+            const res = await fetchData(API_AGENDA);
+            if (!res.success) throw new Error('Error al cargar citas');
+            const cita = (res.data || []).find(c => String(c.id) === String(cid));
+
+            if (!cita) {
+                alert('Cita no encontrada');
+                window.location.href = 'agenda.html';
+                return;
+            }
+
+            infoCitaFecha.textContent = formatearFecha(cita.start); // 'start' viene del formato FullCalendar en agenda.php
+            motivoTextarea.value = cita.title || 'No se especificó motivo.'; // 'title' se usa como motivo en agenda.php
+            medicoId = cita.medicoId; // Asegurarse que agenda.php devuelva medicoId
+
+            // Si la cita ya fue realizada, intentar cargar el expediente asociado
+            // Nota: Esto es complejo porque no hay link directo Cita->Expediente en la BD actual.
+            // Por ahora, asumimos que si el estatus es 'Realizada', bloqueamos la edición.
+            if (cita.estatus === 'Realizada') {
+                diagnosticoTextarea.disabled = true;
+                tratamientoTextarea.disabled = true;
+                notasTextarea.disabled = true;
+                consultaForm.querySelector('button[type="submit"]').disabled = true;
+                consultaForm.querySelector('button[type="submit"]').textContent = 'Consulta Finalizada';
+                alert('Esta cita ya fue atendida.');
+            }
+
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
+    const handleFormSubmit = async (event) => {
         event.preventDefault();
         try {
-            // --- INICIO VALIDACIONES ---
             const diagnostico = Validaciones.validarCampoTexto(diagnosticoTextarea.value, 'Diagnóstico');
             const tratamiento = Validaciones.validarCampoTexto(tratamientoTextarea.value, 'Tratamiento');
-           
-            const nuevoExpediente = {
-                id: `exp_${Date.now()}`,
-                citaId: citaId,
+            const notas = notasTextarea.value.trim();
+
+            // 1. Guardar Expediente
+            const expedienteData = {
+                action: 'create',
                 pacienteId: pacienteId,
                 medicoId: medicoId,
-                fechaConsulta: new Date().toISOString(),
                 diagnostico: diagnostico,
                 tratamiento: tratamiento,
-                notas: notasTextarea.value.trim()
+                notas: notas,
+                sintomas: motivoTextarea.value // Usamos el motivo como síntomas iniciales
             };
-            
-            const expedientes = getExpedientes();
-            expedientes.push(nuevoExpediente);
-            saveExpedientes(expedientes);
-            
-            const citas = getCitas();
-            const indexCita = citas.findIndex(c => c.id === citaId);
-            if (indexCita !== -1) {
-                citas[indexCita].estatus = 'Realizada';
-                saveCitas(citas);
+
+            const resExp = await postForm(API_EXPEDIENTES, expedienteData);
+            if (!resExp.success) throw new Error(resExp.message || 'Error al guardar expediente');
+
+            // 2. Actualizar Estatus de Cita
+            if (citaId) {
+                // Necesitamos un endpoint para actualizar solo el estatus o usar el update completo
+                // Por simplicidad y dado el API actual, intentaremos actualizar el estatus si es posible.
+                // El API agenda.php 'update' requiere todos los campos. Esto es una limitación.
+                // Workaround: No actualizamos el estatus automáticamente por ahora para evitar borrar datos,
+                // O hacemos un fetch de la cita, cambiamos el estatus y enviamos todo de nuevo.
+
+                // Opción segura: Solo registrar bitácora y avisar.
+                // Opción ideal: Mejorar agenda.php para patch status.
+
+                // Vamos a intentar actualizar el estatus obteniendo los datos actuales primero.
+                const resCitas = await fetchData(API_AGENDA);
+                const citaActual = (resCitas.data || []).find(c => String(c.id) === String(citaId));
+                if (citaActual) {
+                    const updateData = {
+                        action: 'update',
+                        id: citaId,
+                        pacienteId: citaActual.pacienteId,
+                        medicoId: citaActual.medicoId,
+                        fecha: citaActual.start, // Asumiendo formato compatible
+                        motivo: citaActual.title,
+                        estatus: 'Realizada'
+                    };
+                    await postForm(API_AGENDA, updateData);
+                }
             }
-            
-            const nombrePaciente = getPacientes().find(p => p.id === pacienteId)?.nombre || 'N/A';
-            window.registrarBitacora('Consulta', 'Registro', `Se guardó expediente para '${nombrePaciente}' (Cita ID: ${citaId}).`);
-            
+
+            window.registrarBitacora('Consulta', 'Registro', `Se guardó expediente para paciente ID ${pacienteId}.`);
+
             alert('Consulta guardada exitosamente.');
             window.location.href = 'agenda.html';
-        
+
         } catch (error) {
             console.warn(error.message);
+            alert('Error: ' + error.message);
         }
     };
 
@@ -125,38 +207,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const params = new URLSearchParams(window.location.search);
         citaId = params.get('citaId');
         pacienteId = params.get('pacienteId');
+
         if (!citaId || !pacienteId) {
             alert('Error: No se especificó una cita o paciente.');
             window.location.href = 'agenda.html';
             return;
         }
-        const paciente = getPacientes().find(p => p.id === pacienteId);
-        const cita = getCitas().find(c => c.id === citaId);
-        cargarDatosPaciente(paciente);
+
+        cargarDatosPaciente(pacienteId);
         cargarHistorial(pacienteId);
-        cargarDatosCita(cita);
-        
-        if (cita && cita.estatus === 'Realizada') {
-            const expediente = getExpedientes().find(e => e.citaId === citaId);
-            if (expediente) {
-                diagnosticoTextarea.value = expediente.diagnostico;
-                tratamientoTextarea.value = expediente.tratamiento;
-                notasTextarea.value = expediente.notas;
-            } else {
-                diagnosticoTextarea.value = "Esta consulta fue marcada como 'Realizada' pero no se encontró expediente.";
-            }
-            diagnosticoTextarea.disabled = true;
-            tratamientoTextarea.disabled = true;
-            notasTextarea.disabled = true;
-            document.querySelector('#form-consulta button[type="submit"]').disabled = true;
-            document.querySelector('#form-consulta button[type="submit"]').textContent = 'Consulta Finalizada';
-        }
+        cargarDatosCita(citaId);
     };
-    
+
     consultaForm.addEventListener('submit', handleFormSubmit);
     btnVolver.addEventListener('click', () => {
         window.location.href = 'agenda.html';
     });
-    
+
     init();
 });

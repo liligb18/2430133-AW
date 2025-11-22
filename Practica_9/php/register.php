@@ -1,6 +1,7 @@
 <?php
 // php/register.php - procesa registro POST (nombre, correo, rol, password, confirm_password)
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/security.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../login.html');
@@ -19,6 +20,13 @@ if ($nombre === '' || $correo === '' || $rol === '' || $password === '' || $conf
     exit;
 }
 
+// Validar CSRF token
+$csrf = $_POST['csrf_token'] ?? '';
+if (!validate_csrf_token($csrf)) {
+    header('Location: ../login.html?reg_error=' . urlencode('Token CSRF inválido.'));
+    exit;
+}
+
 if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
     header('Location: ../login.html?reg_error=' . urlencode('Formato de correo inválido.'));
     exit;
@@ -34,6 +42,7 @@ if ($password !== $confirm) {
     exit;
 }
 
+// Conexión PDO
 $pdo = getPDO();
 
 // Verificamos que no exista el correo
@@ -44,18 +53,20 @@ if ($stmt->fetch()) {
     exit;
 }
 
-// Insertamos usuario
-// NOTA: según la petición, almacenamos la contraseña en texto plano (INSEGURO).
+// Insertamos usuario usando hash de contraseña (mejora de seguridad)
+$hashed = password_hash($password, PASSWORD_DEFAULT);
 $insert = $pdo->prepare('INSERT INTO usuarios (Correo, Contrasena, Nombre, Rol, Activo, FechaCreacion) VALUES (:correo, :contrasena, :nombre, :rol, b\'1\', NOW())');
 try {
     $insert->execute([
         'correo' => $correo,
-        'contrasena' => $password, // texto plano (NO RECOMENDADO)
+        'contrasena' => $hashed,
         'nombre' => $nombre,
         'rol' => $rol
     ]);
 } catch (Exception $e) {
-    header('Location: ../login.html?reg_error=' . urlencode('Error al crear cuenta: ' . $e->getMessage()));
+    // Registrar error en log y devolver mensaje genérico al usuario
+    @error_log('[' . date('Y-m-d H:i:s') . '] Registro error: ' . $e->getMessage() . "\n", 3, sys_get_temp_dir() . '/app_errors.log');
+    header('Location: ../login.html?reg_error=' . urlencode('Error al crear cuenta. Intenta nuevamente más tarde.'));
     exit;
 }
 
