@@ -1,31 +1,49 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- 1. Verificación de Autenticación ---
-    const isAuthenticated = localStorage.getItem('isAuthenticated');
-    const userRole = localStorage.getItem('userRole');
+    // --- 1. Verificación de Autenticación vía PHP Session ---
+    // Obtenemos los datos de sesión del servidor
+    fetch('php/check_session.php', {
+        method: 'GET',
+        credentials: 'same-origin'
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.authenticated) {
+                window.location.href = 'login.php';
+                return;
+            }
 
-    if (!isAuthenticated || isAuthenticated !== 'true') {
-        window.location.href = 'login.html';
-        return; 
-    }
+            // Guardamos los datos en variables globales para uso en la página
+            window.currentUser = {
+                username: data.username,
+                role: data.role,
+                authenticated: true
+            };
+
+            // También los guardamos en localStorage para compatibilidad con código existente
+            localStorage.setItem('isAuthenticated', 'true');
+            localStorage.setItem('userRole', data.role);
+            localStorage.setItem('username', data.username);
+
+            // Gestionar visibilidad del menú según el rol
+            gestionarVisibilidadMenu(data.role);
+        })
+        .catch(error => {
+            console.error('Error verificando sesión:', error);
+            window.location.href = 'login.php';
+        });
 
     // --- 2. Cerrar Sesión  ---
     const logoutButton = document.getElementById('logout-button');
     if (logoutButton) {
         logoutButton.addEventListener('click', (event) => {
-            event.preventDefault(); 
-            
+            event.preventDefault();
+
             // Registramos el logout ANTES de borrar los datos
             window.registrarBitacora('Login', 'Cierre de Sesión', `Usuario ${localStorage.getItem('username')} cerró sesión.`);
 
-            // Limpiamos TODAS las llaves de sesión
-            localStorage.removeItem('isAuthenticated');
-            localStorage.removeItem('userRole');
-            localStorage.removeItem('username');
-            localStorage.removeItem('userId');
-            localStorage.removeItem('medicoId');
-            
-            window.location.href = 'login.html';
+            // Redirigir a logout.php para destruir la sesión del servidor
+            window.location.href = 'php/logout.php';
         });
     }
 
@@ -38,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const menuReportes = document.getElementById('menu-reportes');
         const menuTarifas = document.getElementById('menu-tarifas');
         const menuBitacoras = document.getElementById('menu-bitacoras');
-        
+
         if (menuUsuarios) menuUsuarios.style.display = 'none';
         if (menuMedicos) menuMedicos.style.display = 'none';
         if (menuEspecialidades) menuEspecialidades.style.display = 'none';
@@ -55,16 +73,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (menuReportes) menuReportes.style.display = 'block';
             if (menuTarifas) menuTarifas.style.display = 'block';
             if (menuBitacoras) menuBitacoras.style.display = 'block';
-        
+
         } else if (rol === 'Recepcionista') {
             if (menuPagos) menuPagos.style.display = 'block';
-        
+
         } else if (rol === 'Medico') {
-            
+
         }
     };
-
-    gestionarVisibilidadMenu(userRole);
 
     // --- 4. Restricciones de fecha/hora en inputs (para evitar fechas futuras/pasadas por cliente) ---
     const setDateTimeConstraints = () => {
@@ -86,9 +102,9 @@ document.addEventListener('DOMContentLoaded', () => {
     setDateTimeConstraints();
     // --- 5. CSRF token loader para AJAX ---
     // Proporciona window.getCsrfToken() que devuelve una promesa resuelta con el token (o null)
-    (function(){
+    (function () {
         window._csrfPromise = null;
-        window.getCsrfToken = function() {
+        window.getCsrfToken = function () {
             if (window._csrfPromise) return window._csrfPromise;
             const authHeaders = () => ({ 'X-Local-Auth': (localStorage.getItem('isAuthenticated') === 'true') ? '1' : '0', 'X-User-Role': localStorage.getItem('userRole') || '' });
             window._csrfPromise = fetch('php/api/csrf.php', { method: 'GET', credentials: 'same-origin', headers: authHeaders() })
