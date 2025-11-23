@@ -40,8 +40,8 @@ try {
     $pdo = getPDO();
 
     // Buscamos por Correo o Nombre (campo 'Correo' o 'Nombre')
-    $stmt = $pdo->prepare('SELECT * FROM usuarios WHERE Correo = :login OR Nombre = :login LIMIT 1');
-    $stmt->execute(['login' => $login]);
+    $stmt = $pdo->prepare('SELECT * FROM usuarios WHERE Correo = :correo OR Nombre = :nombre LIMIT 1');
+    $stmt->execute(['correo' => $login, 'nombre' => $login]);
     $user = $stmt->fetch();
 
     if (!$user) {
