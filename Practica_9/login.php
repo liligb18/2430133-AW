@@ -31,6 +31,10 @@
             <p id="login-error-message" class="error-message">
                 <?php if(isset($_GET['error'])){ echo htmlentities($_GET['error']); } ?>
             </p>
+            <p style="font-size: 0.85em; color: #666; margin-top: 10px; text-align: center;">
+                <strong>Credenciales de prueba:</strong><br>
+                Usuario: <code>admin@admin</code> | Contraseña: <code>admin123</code>
+            </p>
             <p class="toggle-link">
                 ¿No tienes cuenta? <a href="#" id="show-register-link">Regístrate aquí</a>
             </p>
