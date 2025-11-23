@@ -50,28 +50,10 @@ try {
         exit;
     }
 
-    // Verificamos contraseña. Soportamos dos casos:
-    // 1) contraseña hasheada => usar password_verify
-    // 2) contraseña legacy en texto plano => permitir el login y migrar a hash
+    // Verificamos contraseña en texto plano (INSEGURO - Solo para práctica)
     $stored = isset($user['Contrasena']) ? $user['Contrasena'] : '';
-    $passwordOk = false;
-    if ($stored !== '' && password_verify($password, $stored)) {
-        $passwordOk = true;
-        // Re-hash si es necesario
-        if (password_needs_rehash($stored, PASSWORD_DEFAULT)) {
-            $newHash = password_hash($password, PASSWORD_DEFAULT);
-            $reh = $pdo->prepare('UPDATE usuarios SET Contrasena = :hash WHERE IdUsuario = :id');
-            $reh->execute(['hash' => $newHash, 'id' => $user['IdUsuario']]);
-        }
-    } elseif ($stored !== '' && $password === $stored) {
-        // Legacy plaintext match: migrar a hash
-        $passwordOk = true;
-        $newHash = password_hash($password, PASSWORD_DEFAULT);
-        $reh = $pdo->prepare('UPDATE usuarios SET Contrasena = :hash WHERE IdUsuario = :id');
-        $reh->execute(['hash' => $newHash, 'id' => $user['IdUsuario']]);
-    }
-
-    if (!$passwordOk) {
+    
+    if ($stored === '' || $password !== $stored) {
         record_failed_login($ip);
         header('Location: ../login.php?error=' . urlencode('Usuario o contraseña incorrectos.'));
         exit;
@@ -96,20 +78,9 @@ try {
     exit;
 
 } catch (Throwable $e) {
-    // Registrar detalles del error en un log temporal para debugging (ubicación en sistema)
-    $msg = '[' . date('Y-m-d H:i:s') . '] ' . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine() . "\n" . $e->getTraceAsString() . "\n\n";
-    @file_put_contents(sys_get_temp_dir() . '/login_error.log', $msg, FILE_APPEND);
-    // Devolver una página HTML5 mínima (evita Quirks Mode)
-    http_response_code(500);
-    header('Content-Type: text/html; charset=utf-8');
-    echo '<!DOCTYPE html>';
-    echo '<html lang="es">';
-    echo '<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Error interno</title></head>';
-    echo '<body><main style="font-family:Arial,Helvetica,sans-serif;max-width:800px;margin:2rem auto;padding:1rem;">';
-    echo '<h1>Error interno</h1>';
-    echo '<p>Ocurrió un error en el servidor. Los detalles fueron guardados en <code>/tmp/login_error.log</code>.</p>';
-    echo '<p><a href="../login.php">Volver al formulario de inicio de sesión</a></p>';
-    echo '</main></body></html>';
+    // En producción, lo ideal es registrar el error en el log del servidor (error_log), no en un archivo temporal visible.
+    // error_log($e->getMessage()); 
+    header('Location: ../login.php?error=' . urlencode('Ocurrió un error interno. Por favor intenta más tarde.'));
     exit;
 }
 

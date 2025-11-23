@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
+
 <body>
     <div class="app-container">
         <nav class="sidebar">
@@ -16,14 +18,17 @@
             <ul class="sidebar-menu">
                 <li id="menu-dashboard"><a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
                 <li id="menu-usuarios"><a href="usuarios.html"><i class="fas fa-users-cog"></i> Usuarios</a></li>
-                <li id="menu-pacientes" class="active"><a href="pacientes.html"><i class="fas fa-users"></i> Pacientes</a></li>
+                <li id="menu-pacientes" class="active"><a href="pacientes.html"><i class="fas fa-users"></i>
+                        Pacientes</a></li>
                 <li id="menu-agenda"><a href="agenda.html"><i class="fas fa-calendar-alt"></i> Agenda</a></li>
                 <li id="menu-medicos"><a href="medicos.html"><i class="fas fa-user-md"></i> Médicos</a></li>
                 <li id="menu-pagos"><a href="pagos.html"><i class="fas fa-file-invoice-dollar"></i> Pagos</a></li>
                 <li id="menu-reportes"><a href="reportes.html"><i class="fas fa-chart-bar"></i> Reportes</a></li>
                 <li id="menu-tarifas"><a href="tarifas.html"><i class="fas fa-tags"></i> Tarifas</a></li>
-                <li id="menu-especialidades"><a href="especialidades.html"><i class="fas fa-stethoscope"></i> Especialidades</a></li>
-                <li id="menu-bitacoras"><a href="bitacoras.html"><i class="fas fa-clipboard-list"></i> Bitácoras</a></li>
+                <li id="menu-especialidades"><a href="especialidades.html"><i class="fas fa-stethoscope"></i>
+                        Especialidades</a></li>
+                <li id="menu-bitacoras"><a href="bitacoras.html"><i class="fas fa-clipboard-list"></i> Bitácoras</a>
+                </li>
             </ul>
             <div class="sidebar-footer">
                 <a href="#" id="logout-button"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
@@ -36,7 +41,8 @@
                 <p>Gestión de altas, bajas y modificaciones de pacientes.</p>
             </header>
             <div class="content-wrapper">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
                     <button class="btn btn-primary" id="btn-nuevo-paciente">
                         <i class="fas fa-plus"></i> Nuevo Paciente
                     </button>
@@ -55,7 +61,9 @@
                             </div>
                             <div class="form-group">
                                 <label for="curp">CURP</label>
-                                <input type="text" id="curp" maxlength="18" pattern="[A-Za-z]{4}\d{6}[HM][A-Za-z]{5}[A-Za-z\d]{2}" title="Formato CURP: AAAA000000HAAAAA00">
+                                <input type="text" id="curp" maxlength="18"
+                                    pattern="[A-Za-z]{4}\d{6}[HM][A-Za-z]{5}[A-Za-z\d]{2}"
+                                    title="Formato CURP: AAAA000000HAAAAA00">
                             </div>
                             <div class="form-group">
                                 <label for="fecha-nacimiento">Fecha de Nacimiento</label>
@@ -71,7 +79,8 @@
                             </div>
                             <div class="form-group">
                                 <label for="telefono">Teléfono (10 dígitos)</label>
-                                <input type="tel" id="telefono" pattern="\d{10}" maxlength="10" inputmode="numeric" title="10 dígitos numéricos">
+                                <input type="tel" id="telefono" pattern="\d{10}" maxlength="10" inputmode="numeric"
+                                    title="10 dígitos numéricos">
                             </div>
                             <div class="form-group">
                                 <label for="email">Correo Electrónico</label>
@@ -87,7 +96,8 @@
                             </div>
                             <div class="form-group">
                                 <label for="telefono-emergencia">Teléfono de Emergencia (10 dígitos)</label>
-                                <input type="tel" id="telefono-emergencia" pattern="\d{10}" maxlength="10" inputmode="numeric" title="10 dígitos numéricos">
+                                <input type="tel" id="telefono-emergencia" pattern="\d{10}" maxlength="10"
+                                    inputmode="numeric" title="10 dígitos numéricos">
                             </div>
                             <div class="form-group full-width">
                                 <label for="alergias">Alergias</label>
@@ -95,7 +105,8 @@
                             </div>
                             <div class="form-group full-width">
                                 <label for="antecedentes">Antecedentes Médicos</label>
-                                <textarea id="antecedentes" placeholder="Ej. Hipertensión, Diabetes tipo 2..."></textarea>
+                                <textarea id="antecedentes"
+                                    placeholder="Ej. Hipertensión, Diabetes tipo 2..."></textarea>
                             </div>
                             <div class="form-actions">
                                 <button type="button" class="btn btn-secondary" id="btn-cancelar">Cancelar</button>
@@ -125,8 +136,10 @@
         </main>
     </div>
 
-    <script src="js/validaciones.js"></script> 
+    <script src="js/auth_guard.js"></script>
+    <script src="js/validaciones.js"></script>
     <script src="js/main.js"></script>
     <script src="js/pacientes.js"></script>
 </body>
+
 </html>

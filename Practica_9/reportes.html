@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,32 +11,42 @@
             body * {
                 visibility: hidden;
             }
-            .printable-area, .printable-area * {
+
+            .printable-area,
+            .printable-area * {
                 visibility: visible;
             }
+
             .printable-area {
                 position: absolute;
                 left: 0;
                 top: 0;
                 width: 100%;
             }
-            .app-container, .main-content {
+
+            .app-container,
+            .main-content {
                 display: block;
                 padding: 0;
             }
+
             .card {
                 box-shadow: none;
                 border: 1px solid #ccc;
             }
+
             table {
                 font-size: 10pt;
             }
-            table th, table td {
+
+            table th,
+            table td {
                 padding: 0.5rem;
             }
         }
     </style>
 </head>
+
 <body>
 
     <div class="app-container">
@@ -53,8 +64,10 @@
                 <li id="menu-pagos"><a href="pagos.html"><i class="fas fa-file-invoice-dollar"></i> Pagos</a></li>
                 <li id="menu-reportes"><a href="reportes.html"><i class="fas fa-chart-bar"></i> Reportes</a></li>
                 <li id="menu-tarifas"><a href="tarifas.html"><i class="fas fa-tags"></i> Tarifas</a></li>
-                <li id="menu-especialidades"><a href="especialidades.html"><i class="fas fa-stethoscope"></i> Especialidades</a></li>
-                <li id="menu-bitacoras"><a href="bitacoras.html"><i class="fas fa-clipboard-list"></i> Bitácoras</a></li>
+                <li id="menu-especialidades"><a href="especialidades.html"><i class="fas fa-stethoscope"></i>
+                        Especialidades</a></li>
+                <li id="menu-bitacoras"><a href="bitacoras.html"><i class="fas fa-clipboard-list"></i> Bitácoras</a>
+                </li>
             </ul>
             <div class="sidebar-footer">
                 <a href="#" id="logout-button"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
@@ -97,14 +110,16 @@
                             </select>
                         </div>
                         <div class="form-group" style="justify-content: flex-end;">
-                            <button class="btn btn-primary" id="btn-generar-reporte"><i class="fas fa-sync"></i> Generar</button>
+                            <button class="btn btn-primary" id="btn-generar-reporte"><i class="fas fa-sync"></i>
+                                Generar</button>
                         </div>
                         <div class="form-group" style="justify-content: flex-end;">
-                            <button class="btn btn-secondary" id="btn-imprimir-reporte"><i class="fas fa-print"></i> Imprimir</button>
+                            <button class="btn btn-secondary" id="btn-imprimir-reporte"><i class="fas fa-print"></i>
+                                Imprimir</button>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="printable-area">
                     <div class="card" id="card-reporte-medico" style="display: none;">
                         <h3 id="titulo-reporte-medico">Reporte de Citas</h3>
@@ -120,7 +135,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    </tbody>
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -130,7 +145,9 @@
         </main>
     </div>
 
+    <script src="js/auth_guard.js"></script>
     <script src="js/main.js"></script>
     <script src="js/reportes.js"></script>
 </body>
+
 </html>

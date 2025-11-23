@@ -53,13 +53,12 @@ if ($stmt->fetch()) {
     exit;
 }
 
-// Insertamos usuario usando hash de contraseña (mejora de seguridad)
-$hashed = password_hash($password, PASSWORD_DEFAULT);
+// Insertamos usuario con contraseña en texto plano (INSEGURO - Solo para práctica)
 $insert = $pdo->prepare('INSERT INTO usuarios (Correo, Contrasena, Nombre, Rol, Activo, FechaCreacion) VALUES (:correo, :contrasena, :nombre, :rol, b\'1\', NOW())');
 try {
     $insert->execute([
         'correo' => $correo,
-        'contrasena' => $hashed,
+        'contrasena' => $password, // Guardamos directo sin hash
         'nombre' => $nombre,
         'rol' => $rol
     ]);
