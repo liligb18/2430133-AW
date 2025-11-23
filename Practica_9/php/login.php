@@ -78,14 +78,9 @@ try {
     exit;
 
 } catch (Throwable $e) {
-    // Logging temporal para debugging
-    $logFile = sys_get_temp_dir() . '/login_debug.log';
-    $msg = '[' . date('Y-m-d H:i:s') . '] ERROR: ' . $e->getMessage() . "\n";
-    $msg .= 'File: ' . $e->getFile() . ':' . $e->getLine() . "\n";
-    $msg .= 'Trace: ' . $e->getTraceAsString() . "\n\n";
-    @file_put_contents($logFile, $msg, FILE_APPEND);
-    
-    header('Location: ../login.php?error=' . urlencode('Error interno: ' . $e->getMessage()));
+    // En producción, registrar en el log del servidor
+    error_log('Login error: ' . $e->getMessage());
+    header('Location: ../login.php?error=' . urlencode('Ocurrió un error interno. Por favor intenta más tarde.'));
     exit;
 }
 

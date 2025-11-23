@@ -3,7 +3,10 @@
     'use strict';
 
     // Verificar sesión al cargar la página
-    fetch('php/check_session.php')
+    fetch('php/check_session.php', {
+        method: 'GET',
+        credentials: 'same-origin' // Importante: incluir cookies de sesión
+    })
         .then(response => response.json())
         .then(data => {
             if (!data.authenticated) {
